@@ -3,7 +3,6 @@ package com.haui.notetakingapp.repository;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.haui.notetakingapp.data.local.NoteDatabase;
 import com.haui.notetakingapp.data.local.dao.NoteDao;
@@ -16,10 +15,12 @@ import java.util.concurrent.Executors;
 public class NoteRepository {
     private final NoteDao noteDao;
     private final ExecutorService executorService;
+    private final LiveData<List<Note>> allNotes;
 
     public NoteRepository(Application application) {
         NoteDatabase db = NoteDatabase.getInstance(application);
         noteDao = db.noteDao();
+        allNotes = noteDao.getAllNotesLive();
         executorService = Executors.newSingleThreadExecutor();
     }
 
@@ -28,7 +29,8 @@ public class NoteRepository {
     }
 
     public void update(Note note) {
-        executorService.execute(() -> noteDao.updateNode(note));
+        note.setUpdatedAt(System.currentTimeMillis());
+        executorService.execute(() -> noteDao.updateNote(note));
     }
 
     public void delete(Note note) {
@@ -36,11 +38,6 @@ public class NoteRepository {
     }
 
     public LiveData<List<Note>> getAllNotes() {
-        MutableLiveData<List<Note>> notesLiveData = new MutableLiveData<>();
-        executorService.execute(() -> {
-            List<Note> notes = noteDao.getAllNotes();
-            notesLiveData.postValue(notes);
-        });
-        return notesLiveData;
+        return allNotes;
     }
 }

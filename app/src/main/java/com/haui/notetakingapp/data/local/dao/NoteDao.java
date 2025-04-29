@@ -1,5 +1,6 @@
 package com.haui.notetakingapp.data.local.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -16,11 +17,14 @@ public interface NoteDao {
     public void insertNote(Note note);
 
     @Update
-    public void updateNode(Note note);
+    public void updateNote(Note note);
 
     @Delete
     public void deleteNote(Note note);
 
     @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
     public List<Note> getAllNotes();
+    
+    @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
+    public LiveData<List<Note>> getAllNotesLiveData();
 }
