@@ -14,17 +14,20 @@ import java.util.List;
 @Dao
 public interface NoteDao {
     @Insert
-    public void insertNote(Note note);
+    void insertNote(Note note);
 
     @Update
-    public void updateNote(Note note);
+    void updateNote(Note note);
 
     @Delete
-    public void deleteNote(Note note);
+    void deleteNote(Note note);
 
     @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
-    public List<Note> getAllNotes();
-    
+    List<Note> getAllNotes();
+
     @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
-    public LiveData<List<Note>> getAllNotesLiveData();
+    LiveData<List<Note>> getAllNotesLiveData();
+
+    @Query("SELECT * FROM notes WHERE title LIKE :query OR content LIKE :query ORDER BY updatedAt DESC")
+    LiveData<List<Note>> searchNotes(String query);
 }

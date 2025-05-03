@@ -5,6 +5,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity(tableName = "notes")
@@ -17,17 +18,24 @@ public class Note {
     private long createdAt;
     private long updatedAt;
 
+    private List<String> imagePaths;
+    private List<String> audioPaths;
+    private List<String> drawPaths;
+
     private boolean isPinned;
     private boolean isDeleted;
 
-    public Note(String title, String content, boolean isPinned) {
+    public Note(String title, String content) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
         this.content = content;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
-        this.isPinned = isPinned;
+        this.isPinned = false;
         this.isDeleted = false;
+        this.imagePaths = null;
+        this.audioPaths = null;
+        this.drawPaths = null;
     }
 
     @Ignore
@@ -39,6 +47,9 @@ public class Note {
         this.updatedAt = System.currentTimeMillis();
         this.isPinned = false;
         this.isDeleted = false;
+        this.imagePaths = null;
+        this.audioPaths = null;
+        this.drawPaths = null;
     }
 
     @NonNull
@@ -80,6 +91,30 @@ public class Note {
 
     public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<String> getImagePaths() {
+        return imagePaths;
+    }
+
+    public void setImagePaths(List<String> imagePaths) {
+        this.imagePaths = imagePaths;
+    }
+
+    public List<String> getAudioPaths() {
+        return audioPaths;
+    }
+
+    public void setAudioPaths(List<String> audioPaths) {
+        this.audioPaths = audioPaths;
+    }
+
+    public List<String> getDrawPaths() {
+        return drawPaths;
+    }
+
+    public void setDrawPaths(List<String> drawPaths) {
+        this.drawPaths = drawPaths;
     }
 
     public boolean isPinned() {
