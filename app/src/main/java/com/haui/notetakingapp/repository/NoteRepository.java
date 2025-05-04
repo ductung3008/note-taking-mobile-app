@@ -40,7 +40,7 @@ public class NoteRepository {
         executorService.execute(() -> {
             FileManager.deleteFiles(note.getImagePaths());
             FileManager.deleteFiles(note.getAudioPaths());
-            FileManager.deleteFiles(note.getDrawPaths());
+            FileManager.deleteFiles(note.getDrawingPaths());
 
             noteDao.deleteNote(note);
         });

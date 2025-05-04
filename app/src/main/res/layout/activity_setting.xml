@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.setting.Setting"
+        android:orientation="vertical"
+        android:background="@color/app_background">
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/tv_home_header"
+                android:textColor="@color/primary_text"
+                android:textSize="20sp"
+                android:textFontWeight="500" />
+
+        <ImageButton
+                android:id="@+id/btn_back"
+                android:padding="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_back"
+                android:contentDescription="@string/btn_back_desc"
+                android:layout_gravity="start|center_vertical" />
+    </FrameLayout>
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <TextView
+                    style="@style/SettingCategoryTitle"
+                    android:text="@string/tv_setting_cloud" />
+
+            <LinearLayout style="@style/SettingRow">
+
+                <TextView
+                        style="@style/SettingItem"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tv_setting_login"
+                        app:drawableEndCompat="@drawable/ic_chevron_right" />
+            </LinearLayout>
+
+            <View style="@style/DividerStyle" />
+
+            <TextView
+                    style="@style/SettingCategoryTitle"
+                    android:text="@string/tv_setting_style" />
+
+            <LinearLayout
+                    style="@style/SettingRow"
+                    android:id="@+id/setting_row_text_size">
+
+                <TextView
+                        style="@style/SettingItem"
+                        android:text="@string/tv_setting_text_size" />
+
+                <TextView
+                        style="@style/SettingSelectedOption"
+                        android:id="@+id/text_selected_text_size"
+                        android:text="Nhỏ" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                    style="@style/SettingRow"
+                    android:id="@+id/setting_row_sort_by">
+
+                <TextView
+                        style="@style/SettingItem"
+                        android:text="@string/tv_setting_sort" />
+
+                <TextView
+                        style="@style/SettingSelectedOption"
+                        android:id="@+id/text_selected_sort_by"
+                        android:text="Theo ngày tạo" />
+            </LinearLayout>
+
+            <LinearLayout
+                    style="@style/SettingRow"
+                    android:id="@+id/setting_row_layout">
+
+                <TextView
+                        style="@style/SettingItem"
+                        android:text="@string/tv_setting_layout" />
+
+                <TextView
+                        style="@style/SettingSelectedOption"
+                        android:id="@+id/text_selected_layout"
+                        android:text="Xem theo danh sách" />
+            </LinearLayout>
+
+            <LinearLayout
+                    style="@style/SettingRow"
+                    android:id="@+id/setting_row_theme">
+
+                <TextView
+                        style="@style/SettingItem"
+                        android:text="@string/tv_setting_theme" />
+
+                <TextView
+                        style="@style/SettingSelectedOption"
+                        android:id="@+id/text_selected_theme"
+                        android:text="Sáng" />
+            </LinearLayout>
+
+            <View style="@style/DividerStyle" />
+
+            <LinearLayout
+                    style="@style/SettingRow"
+                    android:id="@+id/row_github">
+
+                <TextView
+                        style="@style/SettingItem"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tv_setting_github"
+                        app:drawableEndCompat="@drawable/ic_chevron_right" />
+            </LinearLayout>
+
+            <View style="@style/DividerStyle" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
