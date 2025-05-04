@@ -1,6 +1,9 @@
 package com.haui.notetakingapp.ui.home;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,12 +15,14 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
+import com.haui.notetakingapp.ui.setting.Setting;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
     private RecyclerView rvNotes;
+    private ImageButton btnSetting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +41,19 @@ public class HomeActivity extends AppCompatActivity {
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         rvNotes.setLayoutManager(layoutManager);
         rvNotes.setAdapter(noteAdapter);
+
+        btnSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, Setting.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void bindView() {
         rvNotes = findViewById(R.id.rv_notes);
+        btnSetting = findViewById(R.id.btn_setting);
     }
 
     private List<Note> initSampleData() {
@@ -97,9 +111,9 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (i % 5 == 0) {
-                List<String> drawPaths = new ArrayList<>();
-                drawPaths.add("sample_drawing_" + (i + 1) + ".png");
-                note.setDrawPaths(drawPaths);
+                List<String> drawingPaths = new ArrayList<>();
+                drawingPaths.add("sample_drawing_" + (i + 1) + ".png");
+                note.setDrawingPaths(drawingPaths);
             }
 
             sampleNotes.add(note);
