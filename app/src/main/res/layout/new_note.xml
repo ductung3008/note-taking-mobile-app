@@ -50,7 +50,7 @@
                 android:layout_alignParentEnd="true"
                 android:background="@null"
                 android:padding="5dp"
-                android:src="@drawable/check_solid"
+                android:src="@drawable/check_solid1"
                 android:layout_marginRight="10dp"
                 android:contentDescription="Save" />
         </RelativeLayout>
