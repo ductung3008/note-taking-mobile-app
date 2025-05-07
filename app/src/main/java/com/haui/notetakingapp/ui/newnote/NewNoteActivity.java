@@ -1,15 +1,13 @@
-package com.haui.notetakingapp.ui.home;
+package com.haui.notetakingapp.ui.newnote;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -20,9 +18,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.PopupMenu;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,22 +34,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.haui.notetakingapp.R;
-import com.haui.notetakingapp.data.local.NoteDatabase;
-import com.haui.notetakingapp.data.local.entity.Note;
+import com.haui.notetakingapp.viewmodel.NewNoteViewModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class NewNoteActivity extends AppCompatActivity {
+    private static final int REQUEST_RECORD_AUDIO = 102;
     private ImageView imageView;
     private TextView audioPreview;
     private Button playButton;
@@ -59,27 +54,29 @@ public class NewNoteActivity extends AppCompatActivity {
     private ImageButton btnChecklist, btnSave, btnImage, btnRecord;
     private LinearLayout checklistContainer;
     private Uri imageUri;
-
-
     private ActivityResultLauncher<Uri> takePictureLauncher;
     private ActivityResultLauncher<String> pickImageLauncher;
-
     private MediaRecorder mediaRecorder;
     private MediaPlayer mediaPlayer;
-
     private boolean isRecording = false;
     private String audioFilePath;
-    private static final int REQUEST_RECORD_AUDIO = 102;
-    private int checklistCount = 0;
+    private final int checklistCount = 0;
 
+    // ViewModel reference
+    private NewNoteViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.new_note);
+
+        // Initialize ViewModel
+        viewModel = new ViewModelProvider(this).get(NewNoteViewModel.class);
+
+        // Observe ViewModel LiveData
+        observeViewModel();
 
         // Ẩn/hiện nút khi bàn phím mở
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -93,6 +90,24 @@ public class NewNoteActivity extends AppCompatActivity {
         audioFilePath = null;
         setupButtonActions();
     }
+
+    private void observeViewModel() {
+        // Observe save success
+        viewModel.saveSuccess.observe(this, success -> {
+            if (success) {
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+
+        // Observe error messages
+        viewModel.errorMessage.observe(this, message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void myMapping() {
         imageView = findViewById(R.id.imageView);
         audioPreview = findViewById(R.id.audioPreview);
@@ -105,26 +120,25 @@ public class NewNoteActivity extends AppCompatActivity {
         btnRecord = findViewById(R.id.btnRecord);
         checklistContainer = findViewById(R.id.checklistContainer);
     }
+
     private void setupImagePickers() {
         // Khởi tạo launcher chụp ảnh
-        takePictureLauncher = registerForActivityResult(
-                new ActivityResultContracts.TakePicture(),
-                result -> {
-                    if (result && imageUri != null) {
-                        imageView.setImageURI(imageUri);
-                        imageView.setVisibility(View.VISIBLE);
-                    }
-                });
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
+            if (result && imageUri != null) {
+                imageView.setImageURI(imageUri);
+                imageView.setVisibility(View.VISIBLE);
+                viewModel.setImageUri(imageUri);
+            }
+        });
         // Khởi tạo launcher chọn ảnh
-        pickImageLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        imageUri = uri;
-                        imageView.setImageURI(imageUri);
-                        imageView.setVisibility(View.VISIBLE);
-                    }
-                });
+        pickImageLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+            if (uri != null) {
+                imageUri = uri;
+                imageView.setImageURI(imageUri);
+                imageView.setVisibility(View.VISIBLE);
+                viewModel.setImageUri(imageUri);
+            }
+        });
     }
 
     private void setupButtonActions() {
@@ -143,10 +157,8 @@ public class NewNoteActivity extends AppCompatActivity {
                 pickImageLauncher.launch("image/*");
                 return true;
             } else if (item.getItemId() == R.id.menu_camera) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.CAMERA}, 101);
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 101);
                 } else {
                     openCamera();
                 }
@@ -163,10 +175,8 @@ public class NewNoteActivity extends AppCompatActivity {
             Toast.makeText(this, "Đã dừng ghi âm", Toast.LENGTH_SHORT).show();
             btnRecord.setImageResource(R.drawable.microphone); // đổi icon lại nếu cần
         } else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);
             } else {
                 startRecording();
                 Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show();
@@ -174,6 +184,7 @@ public class NewNoteActivity extends AppCompatActivity {
             }
         }
     }
+
     private void playAudio() {
         if (audioFilePath == null) {
             Toast.makeText(this, "Không có file ghi âm để phát", Toast.LENGTH_SHORT).show();
@@ -208,10 +219,8 @@ public class NewNoteActivity extends AppCompatActivity {
     // Hàm mở camera
     private void openCamera() {
         try {
-            File photoFile = new File(getExternalFilesDir(null),
-                    "note_photo_" + System.currentTimeMillis() + ".jpg");
-            imageUri = FileProvider.getUriForFile(this,
-                    getPackageName() + ".fileprovider", photoFile);
+            File photoFile = new File(getExternalFilesDir(null), "note_photo_" + System.currentTimeMillis() + ".jpg");
+            imageUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", photoFile);
             takePictureLauncher.launch(imageUri);
         } catch (Exception e) {
             Toast.makeText(this, "Lỗi khi mở camera", Toast.LENGTH_SHORT).show();
@@ -220,19 +229,11 @@ public class NewNoteActivity extends AppCompatActivity {
 
     // Kết quả sau khi xin quyền
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 101 && grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == 101 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             openCamera();
-        }
-//        else {
-//            Toast.makeText(this, "Bạn cần cấp quyền camera", Toast.LENGTH_SHORT).show();
-//        }
-        else if (requestCode == REQUEST_RECORD_AUDIO && grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        } else if (requestCode == REQUEST_RECORD_AUDIO && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startRecording();
         } else {
             Toast.makeText(this, "Bạn cần cấp quyền để tiếp tục", Toast.LENGTH_SHORT).show();
@@ -243,11 +244,11 @@ public class NewNoteActivity extends AppCompatActivity {
     private void startRecording() {
         File outputDir = getExternalFilesDir(Environment.DIRECTORY_MUSIC);
         if (outputDir != null) {
-//            File outputFile = new File(outputDir, "note_audio_" + System.currentTimeMillis() + ".3gp");
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             File outputFile = new File(outputDir, "audio_note_" + timeStamp + ".3gp");
 
             audioFilePath = outputFile.getAbsolutePath();
+            viewModel.setAudioFilePath(audioFilePath);
 
             mediaRecorder = new MediaRecorder();
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -307,10 +308,7 @@ public class NewNoteActivity extends AppCompatActivity {
         // Tạo layout ngang chứa checkbox và EditText
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.HORIZONTAL);
-        layout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
+        layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         // Tạo checkbox
         CheckBox checkBox = new CheckBox(this);
@@ -322,11 +320,7 @@ public class NewNoteActivity extends AppCompatActivity {
         editText.setBackground(null);
         editText.setTextColor(getResources().getColor(R.color.black));
         editText.setTextSize(16);
-        editText.setLayoutParams(new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1
-        ));
+        editText.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
         editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
         editText.setSingleLine(true);
 
@@ -341,14 +335,9 @@ public class NewNoteActivity extends AppCompatActivity {
 
         // Xử lý nhấn phím xóa (Backspace) khi ô đang trống
         editText.setOnKeyListener((v, keyCode, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_DOWN &&
-                    keyCode == KeyEvent.KEYCODE_DEL &&
-                    editText.getText().toString().isEmpty()) {
-
+            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL && editText.getText().toString().isEmpty()) {
                 // Xoá layout chứa checkbox + EditText khỏi container
                 checklistContainer.removeView(layout);
-
-
                 return true;
             }
             return false;
@@ -368,74 +357,11 @@ public class NewNoteActivity extends AppCompatActivity {
     }
 
     private void saveNote() {
-        String title = editTitle.getText().toString().trim();
-        String content = edtBelowImage.getText().toString().trim();
+        // Update ViewModel with latest values from UI
+        viewModel.setTitle(editTitle.getText().toString().trim());
+        viewModel.setContent(edtBelowImage.getText().toString().trim());
 
-        // Kiểm tra nếu tiêu đề hoặc nội dung trống
-        if (title.isEmpty() || content.isEmpty()) {
-            // Hiển thị thông báo nếu tiêu đề hoặc nội dung trống
-            Toast.makeText(this, "Vui lòng nhập đầy đủ tiêu đề và nội dung", Toast.LENGTH_SHORT).show();
-            return; // Dừng hàm nếu có lỗi
-        }
-
-        // Lấy đường dẫn ảnh và âm thanh đã chọn
-        List<String> imagePaths = getSelectedImagePaths();
-        List<String> audioPaths = getRecordedAudioPaths();
-        for (String path : imagePaths) {
-            Log.d("ImagePaths", "Đường dẫn ảnh: " + path);
-        }
-        Log.d("ImagePaths", "Danh sách ảnh: " + imagePaths.toString());
-
-        // Tạo một ghi chú mới
-        Note note = new Note(title, content);
-        note.setImagePaths(imagePaths);
-        note.setAudioPaths(audioPaths);
-        note.setUpdatedAt(System.currentTimeMillis());
-
-//        // Gửi kết quả về HomeActivity
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("objNewNote", note);
-        audioFilePath = null;
-        imageUri = null;
-        setResult(RESULT_OK, resultIntent);
-//        finish();
-
-        // Quay lại HomeActivity
-        finish();
-    }
-
-
-
-    private List<String> getSelectedImagePaths() {
-        List<String> imagePaths = new ArrayList<>();
-
-        // Nếu imageUri đã được thiết lập, tức là có ảnh đã được chọn hoặc chụp
-        if (imageUri != null) {
-            // Chuyển đổi URI thành đường dẫn file
-            String imagePath = imageUri.getPath();
-            Log.d("ImagePaths", "Danh sách ảnh: " + imageUri);
-            if (imagePath != null) {
-                imagePaths.add(imagePath); // Thêm đường dẫn ảnh vào danh sách
-            }
-        }
-
-        // Trả về danh sách các đường dẫn ảnh
-        return imagePaths;
-    }
-
-    private List<String> getRecordedAudioPaths() {
-        List<String> audioPaths = new ArrayList<>();
-
-        // Nếu có file ghi âm đã được lưu, thêm vào danh sách
-        if (audioFilePath != null && new File(audioFilePath).exists()) {
-            audioPaths.add(audioFilePath); // Thêm đường dẫn file âm thanh vào danh sách
-            Log.d("audioFilePath", "Danh sách audioFilePath: " + audioFilePath);
-        }
-
-        // Trả về danh sách các đường dẫn âm thanh
-        return audioPaths;
+        // Ask ViewModel to save the note
+        viewModel.saveNote();
     }
 }
-
-
-

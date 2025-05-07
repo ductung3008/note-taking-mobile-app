@@ -13,7 +13,7 @@ import com.haui.notetakingapp.data.local.entity.Note;
 @Database(entities = {Note.class}, version = 1, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class NoteDatabase extends RoomDatabase {
-    private static volatile  NoteDatabase INSTANCE;
+    private static volatile NoteDatabase INSTANCE;
 
     public static synchronized NoteDatabase getInstance(Context context) {
         if (INSTANCE == null) {

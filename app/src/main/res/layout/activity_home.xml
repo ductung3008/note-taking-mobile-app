@@ -53,75 +53,34 @@
                 app:queryBackground="@null"
                 app:iconifiedByDefault="false" />
 
-        <LinearLayout
+        <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="0dp"
+                android:layout_weight="1">
 
-            <LinearLayout
-                    android:id="@+id/layout_search_box"
+            <androidx.recyclerview.widget.RecyclerView
+                    android:layout_marginTop="8dp"
+                    android:id="@+id/rv_notes"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:background="@drawable/rounded_edittext_background"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:gravity="center_vertical"
-                    android:visibility="gone">
+                    android:layout_height="match_parent"
+                    android:background="@drawable/rounded_corner_top"
+                    android:clipToOutline="true"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    tools:ignore="UnusedAttribute" />
 
-                <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@android:drawable/ic_menu_search"
-                        android:contentDescription="@string/edt_search_hint"
-                        app:tint="@color/secondary_text" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_add_note"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginBottom="60sp"
+                    android:layout_marginEnd="20sp"
+                    android:contentDescription="@string/fab_add_note_desc"
+                    android:src="@drawable/ic_add_white"
+                    app:backgroundTint="@color/fab_add_note"
+                    app:tint="@null"
+                    app:shapeAppearance="?attr/shapeAppearance" />
+        </FrameLayout>
 
-                <EditText
-                        android:id="@+id/edt_search"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@null"
-                        android:hint="@string/edt_search_hint"
-                        android:textSize="18sp"
-                        android:textColor="@color/primary_text"
-                        android:textColorHint="@color/secondary_text"
-                        android:textFontWeight="500"
-                        android:autofillHints="search_note"
-                        android:inputType="text"
-                        android:singleLine="true"
-                        android:paddingHorizontal="8dp" />
-            </LinearLayout>
-
-            <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-
-                <androidx.recyclerview.widget.RecyclerView
-                        android:layout_marginTop="8dp"
-                        android:id="@+id/rv_notes"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/rounded_corner_top"
-                        android:clipToOutline="true"
-                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                        tools:ignore="UnusedAttribute" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/fab_add_note"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|end"
-                        android:layout_marginBottom="60sp"
-                        android:layout_marginEnd="20sp"
-                        android:contentDescription="@string/fab_add_note_desc"
-                        android:src="@drawable/ic_add_white"
-                        app:backgroundTint="@color/fab_add_note"
-                        app:tint="@null"
-                        app:shapeAppearance="?attr/shapeAppearance" />
-            </FrameLayout>
-        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -111,13 +111,13 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         frameLayout.addView(imageView);
 
         Glide.with(holder.itemView.getContext())
-            .load(imagePath)
-            .apply(new RequestOptions()
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.drawable.ic_launcher_background))
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .centerCrop()
-            .into(imageView);
+                .load(imagePath)
+                .apply(new RequestOptions()
+                        .placeholder(R.drawable.ic_launcher_background)
+                        .error(R.drawable.ic_launcher_background))
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .centerCrop()
+                .into(imageView);
 
         if (note.getImagePaths().size() > 1) {
             TextView counterBadge = new TextView(holder.itemView.getContext());
@@ -127,7 +127,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             );
             badgeParams.gravity = Gravity.END | Gravity.BOTTOM;
             badgeParams.setMargins(0, 0, dpToPx(holder.itemView.getContext(), 8),
-                                  dpToPx(holder.itemView.getContext(), 8));
+                    dpToPx(holder.itemView.getContext(), 8));
             counterBadge.setLayoutParams(badgeParams);
 
             counterBadge.setText("+" + (note.getImagePaths().size() - 1));
@@ -135,9 +135,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             counterBadge.setBackgroundResource(android.R.drawable.ic_dialog_info);
             counterBadge.setBackground(new ColorDrawable(Color.parseColor("#80000000")));
             counterBadge.setPadding(dpToPx(holder.itemView.getContext(), 8),
-                                  dpToPx(holder.itemView.getContext(), 4),
-                                  dpToPx(holder.itemView.getContext(), 8),
-                                  dpToPx(holder.itemView.getContext(), 4));
+                    dpToPx(holder.itemView.getContext(), 4),
+                    dpToPx(holder.itemView.getContext(), 8),
+                    dpToPx(holder.itemView.getContext(), 4));
             counterBadge.setTextSize(12);
 
             frameLayout.addView(counterBadge);
