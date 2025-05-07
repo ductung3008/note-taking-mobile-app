@@ -2,4 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="app_background">#F7F7F7</color>
+    <color name="search_background">#EDEDED</color>
+    <color name="fab_add_note">#FFB11E</color>
+    <color name="primary_text">#000000</color>
+    <color name="secondary_text">#8E8E8E</color>
+    <color name="setting_row_hover">#ECEBEC</color>
+    <color name="setting_drop_down_item_selected_bg">#EBF1FF</color>
+    <color name="setting_drop_down_item_selected_text">#3681FF</color>
 </resources>

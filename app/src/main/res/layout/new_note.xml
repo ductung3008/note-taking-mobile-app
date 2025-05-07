@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="4dp"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/arrow_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:contentDescription="Back"
+                app:srcCompat="@drawable/arrow_left_solid" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/arrow_left"
+                android:text="Thêm ghi chú"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="12dp" />
+
+            <ImageButton
+                android:id="@+id/btnSave"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:background="@null"
+                android:padding="5dp"
+                android:src="@drawable/check_solid1"
+                android:layout_marginRight="10dp"
+                android:contentDescription="Save" />
+        </RelativeLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <!-- Tiêu đề -->
+    <EditText
+        android:id="@+id/editTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Tiêu đề"
+        android:background="@null"
+        app:layout_constraintTop_toBottomOf="@id/materialToolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingStart="10dp"
+        android:paddingVertical="8dp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
+
+    <!-- Scroll nội dung -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/editTitle"
+        app:layout_constraintBottom_toTopOf="@id/wrapperButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+<!--            <EditText-->
+<!--                android:id="@+id/edtAboveImage"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="@null"-->
+<!--                android:hint="Nhập nội dung phía trên ảnh"-->
+<!--                android:minLines="3"-->
+<!--                android:textColor="@color/black"-->
+<!--                android:inputType="textMultiLine"-->
+<!--                android:textSize="16sp" />-->
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginVertical="12dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/audioPreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phát lại ghi âm"
+                android:textColor="@color/black"
+                android:padding="8dp"
+                android:visibility="gone"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintTop_toBottomOf="@id/btnRecord"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <Button
+                android:id="@+id/playButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="Phát lại ghi âm" />
+
+            <EditText
+                android:id="@+id/edtBelowImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:hint="Nội dung"
+                android:minLines="3"
+                android:textColor="@color/black"
+                android:inputType="textMultiLine"
+                android:textSize="16sp" />
+
+                <LinearLayout
+                    android:id="@+id/checklistContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp"/>
+            </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Thanh công cụ dưới cùng -->
+    <LinearLayout
+        android:id="@+id/wrapperButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:paddingHorizontal="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/image"
+            android:background="@null"
+            android:padding="5dp"
+            android:layout_marginRight="10dp"
+            android:contentDescription="Chèn ảnh" />
+
+        <ImageButton
+            android:id="@+id/btnRecord"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/microphone"
+            android:background="@null"
+            android:padding="5dp"
+            android:contentDescription="Ghi âm" />
+
+        <ImageButton
+            android:id="@+id/btnChecklist"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/square_check_solid"
+            android:background="@null"
+            android:padding="5dp"
+            android:contentDescription="Checklist" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

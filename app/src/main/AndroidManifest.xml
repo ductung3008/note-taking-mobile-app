@@ -3,6 +3,14 @@
         xmlns:tools="http://schemas.android.com/tools"
         package="com.haui.notetakingapp">
 
+    <uses-feature android:name="android.hardware.camera" android:required="true"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
             android:allowBackup="true"
             android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,13 +22,33 @@
             android:theme="@style/Theme.NoteTakingApp"
             tools:targetApi="31">
         <activity
+                android:name=".ui.setting.Setting"
+                android:exported="false" />
+        <activity
                 android:name=".ui.home.HomeActivity"
+                android:windowSoftInputMode="adjustPan"
                 android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+                android:name=".ui.home.NewNoteActivity"
+                android:windowSoftInputMode="adjustPan"
+                android:exported="true"/>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

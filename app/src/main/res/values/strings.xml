@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">Note Taking App</string>
+    <string name="app_name">Sổ tay</string>
+    <string name="btn_setting_desc">Cài đặt</string>
+    <string name="tv_home_header">Ghi chú</string>
+    <string name="edt_search_hint">Tìm kiếm ghi chú</string>
+    <string name="fab_add_note_desc">Thêm ghi chú</string>
+    <string name="btn_back_desc">Quay lại</string>
+    <string name="tv_setting_cloud">Dịch vụ đám mây</string>
+    <string name="tv_setting_login">Đăng nhập</string>
+    <string name="tv_setting_style">Phong cách</string>
+    <string name="tv_setting_text_size">Cỡ chữ</string>
+    <string name="tv_setting_sort">Sắp xếp</string>
+    <string name="tv_setting_layout">Bố cục</string>
+    <string name="tv_setting_theme">Chủ đề</string>
+    <string name="tv_setting_github">Github</string>
 </resources>
