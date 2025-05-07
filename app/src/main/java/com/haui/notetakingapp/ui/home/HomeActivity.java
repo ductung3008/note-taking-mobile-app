@@ -2,6 +2,8 @@ package com.haui.notetakingapp.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -19,6 +21,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.NoteDatabase;
 import com.haui.notetakingapp.data.local.entity.Note;
+import com.haui.notetakingapp.ui.setting.Setting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +32,8 @@ public class HomeActivity extends AppCompatActivity {
     private RecyclerView rvNotes;
     private NoteDatabase noteDatabase;
     ActivityResultLauncher activityResultLauncher;
+    private ImageButton btnSetting;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,11 +75,19 @@ public class HomeActivity extends AppCompatActivity {
             activityResultLauncher.launch(intent);
 //            startActivity(intent);
         });
+      btnSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, Setting.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
     private void bindView() {
         rvNotes = findViewById(R.id.rv_notes);
+        btnSetting = findViewById(R.id.btn_setting);
     }
     private void loadNotes() {
         LiveData<List<Note>> notesLiveData = noteDatabase.noteDao().getAllNotesLiveData();
@@ -155,9 +168,9 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (i % 5 == 0) {
-                List<String> drawPaths = new ArrayList<>();
-                drawPaths.add("sample_drawing_" + (i + 1) + ".png");
-                note.setDrawPaths(drawPaths);
+                List<String> drawingPaths = new ArrayList<>();
+                drawingPaths.add("sample_drawing_" + (i + 1) + ".png");
+                note.setDrawingPaths(drawingPaths);
             }
 
             sampleNotes.add(note);

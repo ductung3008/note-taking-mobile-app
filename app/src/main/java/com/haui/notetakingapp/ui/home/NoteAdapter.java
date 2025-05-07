@@ -73,7 +73,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             holder.ivAudioIndicator.setVisibility(View.GONE);
         }
 
-        if (note.getDrawPaths() != null && !note.getDrawPaths().isEmpty()) {
+        if (note.getDrawingPaths() != null && !note.getDrawingPaths().isEmpty()) {
             holder.ivDrawingIndicator.setVisibility(View.VISIBLE);
         } else {
             holder.ivDrawingIndicator.setVisibility(View.GONE);
