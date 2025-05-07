@@ -56,6 +56,18 @@
                         android:layout_height="wrap_content"
                         android:text="@string/tv_setting_login"
                         app:drawableEndCompat="@drawable/ic_chevron_right" />
+
+            </LinearLayout>
+
+            <LinearLayout style="@style/SettingRow">
+
+                <TextView
+                        style="@style/SettingItem"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tv_setting_register"
+                        app:drawableEndCompat="@drawable/ic_chevron_right" />
+
             </LinearLayout>
 
             <View style="@style/DividerStyle" />

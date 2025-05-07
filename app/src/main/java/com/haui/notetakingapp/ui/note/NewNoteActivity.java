@@ -1,4 +1,4 @@
-package com.haui.notetakingapp.ui.newnote;
+package com.haui.notetakingapp.ui.note;
 
 import android.Manifest;
 import android.content.Context;

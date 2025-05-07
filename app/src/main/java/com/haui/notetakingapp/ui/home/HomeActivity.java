@@ -2,7 +2,6 @@ package com.haui.notetakingapp.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
@@ -19,7 +18,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
-import com.haui.notetakingapp.ui.newnote.NewNoteActivity;
+import com.haui.notetakingapp.ui.note.DeletedNoteActivity;
+import com.haui.notetakingapp.ui.note.NewNoteActivity;
 import com.haui.notetakingapp.ui.setting.Setting;
 import com.haui.notetakingapp.viewmodel.HomeViewModel;
 
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 public class HomeActivity extends AppCompatActivity {
     private RecyclerView rvNotes;
     private ActivityResultLauncher<Intent> newNoteActivityLauncher;
-    private ImageButton btnSetting;
+    private ImageButton btnTrashCan, btnSetting;
     private HomeViewModel viewModel;
     private NoteAdapter noteAdapter;
 
@@ -69,6 +69,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void bindView() {
         rvNotes = findViewById(R.id.rv_notes);
+        btnTrashCan = findViewById(R.id.btn_trash_can);
         btnSetting = findViewById(R.id.btn_setting);
     }
 
@@ -92,12 +93,14 @@ public class HomeActivity extends AppCompatActivity {
             newNoteActivityLauncher.launch(intent);
         });
 
-        btnSetting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, Setting.class);
-                startActivity(intent);
-            }
+        btnTrashCan.setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, DeletedNoteActivity.class);
+            startActivity(intent);
+        });
+
+        btnSetting.setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, Setting.class);
+            startActivity(intent);
         });
     }
 

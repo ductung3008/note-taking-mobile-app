@@ -25,15 +25,28 @@
                 android:layout_gravity="center"
                 android:textFontWeight="500" />
 
-        <ImageButton
-                android:id="@+id/btn_setting"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_setting"
-                android:contentDescription="@string/btn_setting_desc"
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="12dp"
-                android:layout_gravity="end" />
+                android:layout_gravity="end">
+
+            <ImageButton
+                    android:id="@+id/btn_trash_can"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_trash_can"
+                    android:contentDescription="@string/btn_trash_can_desc" />
+
+            <ImageButton
+                    android:id="@+id/btn_setting"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_setting"
+                    android:contentDescription="@string/btn_setting_desc" />
+        </LinearLayout>
     </FrameLayout>
 
     <LinearLayout
