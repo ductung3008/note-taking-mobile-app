@@ -34,7 +34,7 @@
                 app:srcCompat="@drawable/ic_arrow_back" />
 
             <EditText
-                android:id="@+id/editTitle3"
+                android:id="@+id/editTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@+id/arrow_left"
@@ -77,7 +77,7 @@
 
     <!-- Tiêu đề -->
     <EditText
-        android:id="@+id/editTitle"
+        android:id="@+id/editTitleOld"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@null"
@@ -98,7 +98,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/editTitle"
+        app:layout_constraintTop_toBottomOf="@id/editTitleOld"
         app:layout_constraintBottom_toTopOf="@id/wrapperButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
