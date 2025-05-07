@@ -6,22 +6,32 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.haui.notetakingapp.R;
+import com.haui.notetakingapp.data.local.NoteDatabase;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.ui.setting.Setting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class HomeActivity extends AppCompatActivity {
     private RecyclerView rvNotes;
+    private NoteDatabase noteDatabase;
+    ActivityResultLauncher activityResultLauncher;
     private ImageButton btnSetting;
 
     @Override
@@ -36,24 +46,71 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         bindView();
-        List<Note> sampleNotes = initSampleData();
-        NoteAdapter noteAdapter = new NoteAdapter(sampleNotes);
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        rvNotes.setLayoutManager(layoutManager);
-        rvNotes.setAdapter(noteAdapter);
+//        List<Note> sampleNotes = initSampleData();
+//        NoteAdapter noteAdapter = new NoteAdapter(sampleNotes);
+//        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+//        rvNotes.setLayoutManager(layoutManager);
+//        rvNotes.setAdapter(noteAdapter);
+        noteDatabase = NoteDatabase.getInstance(this);  // Khởi tạo cơ sở dữ liệu
 
-        btnSetting.setOnClickListener(new View.OnClickListener() {
+        // Lấy danh sách ghi chú từ cơ sở dữ liệu
+        loadNotes();
+        activityResultLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                        result -> {
+                            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                                Note note = (Note) result.getData().getSerializableExtra("objNewNote");
+                                if (note != null) {
+                                    // Chỉ cần thêm note vào DB — LiveData sẽ tự động cập nhật RecyclerView
+                                    Executor executor = Executors.newSingleThreadExecutor();
+                                    executor.execute(() -> {
+                                        NoteDatabase.getInstance(getApplicationContext()).noteDao().insertNote(note);
+                                    });
+                                }
+                            }
+                        });
+        FloatingActionButton fabAddNote = findViewById(R.id.fab_add_note);
+        fabAddNote.setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, NewNoteActivity.class);
+            activityResultLauncher.launch(intent);
+//            startActivity(intent);
+        });
+      btnSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, Setting.class);
                 startActivity(intent);
             }
         });
+
     }
 
     private void bindView() {
         rvNotes = findViewById(R.id.rv_notes);
         btnSetting = findViewById(R.id.btn_setting);
+    }
+    private void loadNotes() {
+        LiveData<List<Note>> notesLiveData = noteDatabase.noteDao().getAllNotesLiveData();
+
+        notesLiveData.observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notes) {
+                // Cập nhật adapter với danh sách ghi chú mới
+                NoteAdapter noteAdapter = new NoteAdapter(notes);
+                StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                rvNotes.setLayoutManager(layoutManager);
+                rvNotes.setAdapter(noteAdapter);
+            }
+        });
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            loadNotes(); // Reload lại danh sách sau khi thêm
+        }
     }
 
     private List<Note> initSampleData() {
