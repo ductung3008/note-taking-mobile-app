@@ -37,6 +37,16 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         this.notes = notes;
     }
 
+    public interface OnNoteClickListener {
+        void onNoteClick(Note note);
+    }
+
+    private OnNoteClickListener listener;
+
+    public void setOnNoteClickListener(OnNoteClickListener listener) {
+        this.listener = listener;
+    }
+
     @NonNull
     @Override
     public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -58,6 +68,12 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         setupMediaIndicators(holder, note);
 
         setupNoteImage(holder, note);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onNoteClick(note);
+            }
+        });
     }
 
     private void setupMediaIndicators(NoteViewHolder holder, Note note) {
@@ -79,6 +95,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             holder.ivDrawingIndicator.setVisibility(View.GONE);
         }
     }
+
+
 
     private void setupNoteImage(NoteViewHolder holder, Note note) {
         holder.imageContainer.removeAllViews();
@@ -160,6 +178,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         this.notes = notes;
         notifyDataSetChanged();
     }
+
 
     static class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle;
