@@ -34,6 +34,6 @@ public class HomeViewModel extends AndroidViewModel {
     }
 
     public void delete(Note note) {
-        noteRepository.delete(note);
+        noteRepository.permanentlyDeleteNote(note);
     }
 }
