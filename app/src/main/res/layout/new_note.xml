@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -30,47 +31,66 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:contentDescription="Back"
-                app:srcCompat="@drawable/arrow_left_solid" />
+                app:srcCompat="@drawable/ic_arrow_back" />
+
+            <EditText
+                android:id="@+id/editTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/arrow_left"
+                android:background="@null"
+                android:hint="Tiêu đề"
+                android:paddingVertical="8dp"
+                android:paddingStart="10dp"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/arrow_left" />
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="12dp"
                 android:layout_toEndOf="@id/arrow_left"
                 android:text="Thêm ghi chú"
                 android:textColor="@android:color/black"
                 android:textSize="20sp"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="12dp" />
+                android:visibility="gone"
+                tools:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/btnSave"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
-                android:background="@null"
-                android:padding="5dp"
-                android:src="@drawable/check_solid1"
                 android:layout_marginRight="10dp"
-                android:contentDescription="Save" />
+                android:background="@null"
+                android:contentDescription="Save"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/check_solid1" />
         </RelativeLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 
     <!-- Tiêu đề -->
     <EditText
-        android:id="@+id/editTitle"
+        android:id="@+id/editTitleOld"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Tiêu đề"
         android:background="@null"
-        app:layout_constraintTop_toBottomOf="@id/materialToolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingStart="10dp"
+        android:hint="Tiêu đề"
         android:paddingVertical="8dp"
-        android:textStyle="bold"
+        android:paddingStart="10dp"
         android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/materialToolbar" />
 
     <!-- Scroll nội dung -->
     <androidx.core.widget.NestedScrollView
@@ -78,7 +98,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/editTitle"
+        app:layout_constraintTop_toBottomOf="@id/editTitleOld"
         app:layout_constraintBottom_toTopOf="@id/wrapperButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -155,37 +175,46 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:gravity="start"
+        android:orientation="horizontal"
         android:paddingHorizontal="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
             android:id="@+id/btnImage"
-            android:layout_width="40dp"
+            android:layout_width="36dp"
             android:layout_height="40dp"
-            android:src="@drawable/image"
+            android:layout_marginEnd="16dp"
             android:background="@null"
-            android:padding="5dp"
-            android:layout_marginRight="10dp"
-            android:contentDescription="Chèn ảnh" />
+            android:contentDescription="Chèn ảnh"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/image" />
 
         <ImageButton
             android:id="@+id/btnRecord"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/microphone"
+            android:layout_marginEnd="16dp"
             android:background="@null"
-            android:padding="5dp"
-            android:contentDescription="Ghi âm" />
+            android:contentDescription="Ghi âm"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/microphone" />
 
         <ImageButton
             android:id="@+id/btnChecklist"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/square_check_solid"
             android:background="@null"
-            android:padding="5dp"
-            android:contentDescription="Checklist" />
+            android:contentDescription="Checklist"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/square_check_solid" />
+
     </LinearLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

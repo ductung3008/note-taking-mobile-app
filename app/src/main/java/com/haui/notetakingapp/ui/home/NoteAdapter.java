@@ -45,6 +45,15 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         this.onNoteListener = onNoteListener;
     }
 
+    public interface OnNoteClickListener {
+        void onNoteClick(Note note);
+    }
+
+    private OnNoteClickListener listener;
+
+    public void setOnNoteClickListener(OnNoteClickListener listener) {
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
@@ -72,6 +81,12 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
 
         // Tải và hiển thị ảnh đầu tiên nếu có
         setupNoteImage(holder, note);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onNoteClick(note);
+            }
+        });
     }
 
     private void setupMediaIndicators(NoteViewHolder holder, Note note) {
@@ -80,6 +95,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         holder.ivAudioIndicator.setVisibility((note.getAudioPaths() != null && !note.getAudioPaths().isEmpty()) ? View.VISIBLE : View.GONE);
         holder.ivDrawingIndicator.setVisibility((note.getDrawingPaths() != null && !note.getDrawingPaths().isEmpty()) ? View.VISIBLE : View.GONE);
     }
+
+
 
     private void setupNoteImage(NoteViewHolder holder, Note note) {
         holder.imageContainer.removeAllViews(); // Xóa các view ảnh cũ trước khi thêm mới
@@ -191,8 +208,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         void onNoteClick(int position);
     }
 
-    // ViewHolder class
     static class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+    static class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle;
         TextView tvContent;
         TextView tvDate;

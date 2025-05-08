@@ -19,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.ui.note.DeletedNoteActivity;
+import com.haui.notetakingapp.ui.note.EditNoteActivity;
 import com.haui.notetakingapp.ui.note.NewNoteActivity;
 import com.haui.notetakingapp.ui.setting.Setting;
 import com.haui.notetakingapp.viewmodel.HomeViewModel;
@@ -28,6 +29,8 @@ import java.util.ArrayList;
 public class HomeActivity extends AppCompatActivity {
     private RecyclerView rvNotes;
     private ActivityResultLauncher<Intent> newNoteActivityLauncher;
+
+    private ActivityResultLauncher<Intent> editNoteActivityLauncher;
     private ImageButton btnTrashCan, btnSetting;
     private HomeViewModel viewModel;
     private NoteAdapter noteAdapter;
@@ -63,8 +66,12 @@ public class HomeActivity extends AppCompatActivity {
         // Initialize activity launcher for new note creation
         setupNewNoteActivityLauncher();
 
+        setupEditNoteActivityLauncher();
+
         // Setup button click listeners
         setupClickListeners();
+
+
     }
 
     private void bindView() {
@@ -86,6 +93,22 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
+
+
+    private void setupEditNoteActivityLauncher() {
+        editNoteActivityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Note editedNote = (Note) result.getData().getSerializableExtra("objEditedNote");
+                        if (editedNote != null) {
+                            viewModel.update(editedNote); // Update the note in database
+                        }
+                    }
+                });
+    }
+
+
     private void setupClickListeners() {
         FloatingActionButton fabAddNote = findViewById(R.id.fab_add_note);
         fabAddNote.setOnClickListener(view -> {
@@ -102,6 +125,15 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, Setting.class);
             startActivity(intent);
         });
+        noteAdapter.setOnNoteClickListener(note -> {
+            Intent intent = new Intent(HomeActivity.this, EditNoteActivity.class);
+            intent.putExtra("noteToEdit", note);  // Make sure Note implements Serializable
+            editNoteActivityLauncher.launch(intent);
+        });
+
+
+
+
     }
 
     @Override
