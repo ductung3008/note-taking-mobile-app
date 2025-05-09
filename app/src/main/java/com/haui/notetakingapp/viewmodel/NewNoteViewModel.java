@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.repository.NoteRepository;
 
@@ -21,13 +22,17 @@ public class NewNoteViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Boolean> _saveSuccess = new MutableLiveData<>();
     private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
+    private MutableLiveData<List<CheckListItem>> checklistItems = new MutableLiveData<>(new ArrayList<>());
     public LiveData<Boolean> saveSuccess = _saveSuccess;
     public LiveData<String> errorMessage = _errorMessage;
 
     private String title = "";
     private String content = "";
-    private Uri imageUri = null;
+    private List<Uri> imageUris = new ArrayList<>();
     private String audioFilePath = null;
+//    private List<String> checklistItems = new ArrayList<>();
+    private List<Uri> drawImages = new ArrayList<>();
+
 
     public NewNoteViewModel(@NonNull Application application) {
         super(application);
@@ -43,11 +48,42 @@ public class NewNoteViewModel extends AndroidViewModel {
     }
 
     public void setImageUri(Uri imageUri) {
-        this.imageUri = imageUri;
+        if (imageUri != null) {
+            imageUris.add(imageUri);
+        }
     }
 
     public void setAudioFilePath(String audioFilePath) {
         this.audioFilePath = audioFilePath;
+    }
+    public LiveData<List<CheckListItem>> getChecklistItems() {
+        return checklistItems;
+    }
+    public void setChecklistItems(List<CheckListItem> items) {
+        checklistItems.setValue(items);
+    }
+    public void addChecklistItem(CheckListItem item) {
+        List<CheckListItem> items = checklistItems.getValue();
+        if (items != null) {
+            items.add(item);
+            checklistItems.setValue(items);
+        }
+    }
+
+    public void removeChecklistItem(CheckListItem item) {
+        List<CheckListItem> items = checklistItems.getValue();
+        if (items != null) {
+            items.remove(item);
+            checklistItems.setValue(items);
+        }
+    }
+
+    public List<Uri> getDrawImages() {
+        return drawImages;
+    }
+
+    public void setDrawImages(List<Uri> drawImages) {
+        this.drawImages = drawImages;
     }
 
     public void saveNote() {
@@ -60,7 +96,8 @@ public class NewNoteViewModel extends AndroidViewModel {
         note.setImagePaths(getSelectedImagePaths());
         note.setAudioPaths(getRecordedAudioPaths());
         note.setUpdatedAt(System.currentTimeMillis());
-
+        note.setChecklistItems(checklistItems.getValue());
+        note.setDrawingPaths(getDrawImagePaths());
         noteRepository.insert(note);
         _saveSuccess.setValue(true);
     }
@@ -68,9 +105,8 @@ public class NewNoteViewModel extends AndroidViewModel {
     private List<String> getSelectedImagePaths() {
         List<String> imagePaths = new ArrayList<>();
 
-        if (imageUri != null) {
-            String imagePath = imageUri.toString();
-            imagePaths.add(imagePath);
+        for (Uri uri : imageUris) {
+            imagePaths.add(uri.toString());
         }
 
         return imagePaths;
@@ -84,5 +120,14 @@ public class NewNoteViewModel extends AndroidViewModel {
         }
 
         return audioPaths;
+    }
+
+
+    private List<String> getDrawImagePaths() {
+        List<String> drawImagePaths = new ArrayList<>();
+        for (Uri uri : drawImages) {
+            drawImagePaths.add(uri.toString());  // Chuyển đổi Uri thành String
+        }
+        return drawImagePaths;
     }
 }
