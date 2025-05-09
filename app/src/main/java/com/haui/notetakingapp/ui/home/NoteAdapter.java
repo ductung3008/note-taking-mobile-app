@@ -210,7 +210,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
 
     static class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    static class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle;
         TextView tvContent;
         TextView tvDate;

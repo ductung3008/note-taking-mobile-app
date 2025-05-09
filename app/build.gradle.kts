@@ -30,7 +30,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
-
 dependencies {
     // AndroidX Core Libraries
     implementation(libs.appcompat)
@@ -50,8 +49,20 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
 
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Paint
+    implementation("com.github.gcacace:signature-pad:1.2.0")
+    implementation("com.github.kristiyanP:colorpicker:v1.1.10")
+    implementation("com.google.android.material:material:1.1.0")
+
+
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+
 }

@@ -22,7 +22,7 @@ public class Note implements Serializable {
     private List<String> imagePaths;
     private List<String> audioPaths;
     private List<String> drawingPaths;
-
+    private List<CheckListItem> checklistItems;
     private boolean isPinned;
     private boolean isDeleted;
 
@@ -37,6 +37,7 @@ public class Note implements Serializable {
         this.imagePaths = null;
         this.audioPaths = null;
         this.drawingPaths = null;
+        this.checklistItems = null;
     }
 
     @Ignore
@@ -51,6 +52,7 @@ public class Note implements Serializable {
         this.imagePaths = null;
         this.audioPaths = null;
         this.drawingPaths = null;
+        this.checklistItems = null;
     }
 
     @NonNull
@@ -116,6 +118,14 @@ public class Note implements Serializable {
 
     public void setDrawingPaths(List<String> drawingPaths) {
         this.drawingPaths = drawingPaths;
+    }
+
+    public List<CheckListItem> getChecklistItems() {
+        return checklistItems;
+    }
+
+    public void setChecklistItems(List<CheckListItem> checklistItems) {
+        this.checklistItems = checklistItems;
     }
 
     public boolean isPinned() {
