@@ -57,11 +57,8 @@ dependencies {
     implementation("com.github.kristiyanP:colorpicker:v1.1.10")
     implementation("com.google.android.material:material:1.1.0")
 
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
-
 }
