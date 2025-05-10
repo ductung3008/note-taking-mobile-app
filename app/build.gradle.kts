@@ -58,7 +58,6 @@ dependencies {
     implementation("com.google.android.material:material:1.1.0")
 
 
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

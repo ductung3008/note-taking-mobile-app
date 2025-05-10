@@ -70,8 +70,6 @@ public class HomeActivity extends AppCompatActivity {
 
         // Setup button click listeners
         setupClickListeners();
-
-
     }
 
     private void bindView() {
@@ -81,33 +79,26 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupNewNoteActivityLauncher() {
-        newNoteActivityLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Note note = (Note) result.getData().getSerializableExtra("objNewNote");
-                        if (note != null) {
-                            viewModel.insert(note);
-                        }
-                    }
-                });
+        newNoteActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                Note note = (Note) result.getData().getSerializableExtra("objNewNote");
+                if (note != null) {
+                    viewModel.insert(note);
+                }
+            }
+        });
     }
-
-
 
     private void setupEditNoteActivityLauncher() {
-        editNoteActivityLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Note editedNote = (Note) result.getData().getSerializableExtra("objEditedNote");
-                        if (editedNote != null) {
-                            viewModel.update(editedNote); // Update the note in database
-                        }
-                    }
-                });
+        editNoteActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                Note editedNote = (Note) result.getData().getSerializableExtra("objEditedNote");
+                if (editedNote != null) {
+                    viewModel.update(editedNote); // Update the note in database
+                }
+            }
+        });
     }
-
 
     private void setupClickListeners() {
         FloatingActionButton fabAddNote = findViewById(R.id.fab_add_note);
@@ -125,15 +116,13 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, Setting.class);
             startActivity(intent);
         });
+
         noteAdapter.setOnNoteClickListener(note -> {
             Intent intent = new Intent(HomeActivity.this, EditNoteActivity.class);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.putExtra("noteToEdit", note);  // Make sure Note implements Serializable
             editNoteActivityLauncher.launch(intent);
         });
-
-
-
-
     }
 
     @Override

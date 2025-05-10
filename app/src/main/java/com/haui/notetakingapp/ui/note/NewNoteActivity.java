@@ -5,12 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -40,6 +42,10 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.viewmodel.NewNoteViewModel;
@@ -54,25 +60,24 @@ import java.util.Locale;
 
 public class NewNoteActivity extends AppCompatActivity {
     private static final int REQUEST_RECORD_AUDIO = 102;
+    private final int checklistCount = 0;
     private ImageView imageView, arrowLeft;
     private TextView audioPreview;
     private Button playButton;
-    private EditText editTitle, edtBelowImage;
+    private EditText editTitle, edtContent;
     private ImageButton btnChecklist, btnSave, btnImage, btnRecord, btnDraw;
     private LinearLayout checklistContainer, imageContainer, imageContainerDraw;
     private Uri imageUri;
     private ActivityResultLauncher<Uri> takePictureLauncher;
-    private ActivityResultLauncher<String> pickImageLauncher;
+    private ActivityResultLauncher<String[]> pickImageLauncher;
     private ActivityResultLauncher<Intent> drawScreenLauncher;
-
     private MediaRecorder mediaRecorder;
     private MediaPlayer mediaPlayer;
     private boolean isRecording = false;
     private String audioFilePath;
-    private final int checklistCount = 0;
-
     // ViewModel reference
     private NewNoteViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -118,11 +123,10 @@ public class NewNoteActivity extends AppCompatActivity {
     }
 
     private void myMapping() {
-        imageView = findViewById(R.id.imageView);
         audioPreview = findViewById(R.id.audioPreview);
         playButton = findViewById(R.id.playButton);
         editTitle = findViewById(R.id.editTitle);
-        edtBelowImage = findViewById(R.id.edtBelowImage);
+        edtContent = findViewById(R.id.edtContent);
         btnChecklist = findViewById(R.id.btnChecklist);
         btnSave = findViewById(R.id.btnSave);
         btnImage = findViewById(R.id.btnImage);
@@ -134,52 +138,68 @@ public class NewNoteActivity extends AppCompatActivity {
         btnDraw = findViewById(R.id.btnDraw);
     }
 
-    private void setupImagePickers() {
-        // Khởi tạo launcher chụp ảnh
-        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
-            if (result && imageUri != null) {
-                imageView.setImageURI(imageUri);
-                imageView.setVisibility(View.VISIBLE);
-                viewModel.setImageUri(imageUri);
-            }
-        });
-        // Khởi tạo launcher chọn ảnh
-        pickImageLauncher = registerForActivityResult(new ActivityResultContracts.GetMultipleContents(), uris -> {
-            if (uris != null && !uris.isEmpty()) {
-                imageContainer.removeAllViews(); // Xóa ảnh cũ nếu có
-                for (Uri uri : uris) {
-                    ImageView image = new ImageView(this);
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT, 600);
-                    params.setMargins(0, 8, 0, 8);
-                    image.setLayoutParams(params);
-                    image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    image.setImageURI(uri);
-                    imageContainer.addView(image);
-                    viewModel.setImageUri(uri);
-                }
-            }
-        });
-    }
-
     private void setupButtonActions() {
         btnImage.setOnClickListener(v -> showImagePopup());
         btnRecord.setOnClickListener(v -> handleRecording());
         playButton.setOnClickListener(v -> playAudio());
         btnChecklist.setOnClickListener(v -> addChecklistItem());
         btnSave.setOnClickListener(v -> saveNote());
-        arrowLeft.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        btnDraw.setOnClickListener( view -> {
+        arrowLeft.setOnClickListener(v -> finish());
+        btnDraw.setOnClickListener(view -> {
             Intent intent = new Intent(NewNoteActivity.this, DrawActivity.class);
             drawScreenLauncher.launch(intent);
+        });
+    }
 
+    private void addImageToView(Uri imageUri) {
+        ImageView image = new ImageView(this);
+        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 8, 0, 8);
+        image.setLayoutParams(params);
+
+        imageContainer.addView(image);
+
+        Glide.with(this)
+                .asBitmap()
+                .load(imageUri)
+                .override(Target.SIZE_ORIGINAL)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        int width = resource.getWidth() / 2;
+                        int height = resource.getHeight() / 2;
+                        Bitmap resizedBitmap = Bitmap.createScaledBitmap(resource, width, height, true);
+                        image.getLayoutParams().width = width;
+                        image.getLayoutParams().height = height;
+                        image.setImageBitmap(resizedBitmap);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+    }
+
+    private void setupImagePickers() {
+        // Khởi tạo launcher chụp ảnh
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
+            addImageToView(imageUri);
+            viewModel.addImagePath(imageUri);
         });
 
+        // Khởi tạo launcher chọn ảnh
+        pickImageLauncher = registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), uris -> {
+            if (uris != null && !uris.isEmpty()) {
+                for (Uri uri : uris) {
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    addImageToView(uri);
+                }
+                viewModel.addImagePaths(uris);
+            }
+        });
     }
 
     private void showImagePopup() {
@@ -187,7 +207,7 @@ public class NewNoteActivity extends AppCompatActivity {
         popup.getMenuInflater().inflate(R.menu.menu_image_button, popup.getMenu());
         popup.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.menu_gallery) {
-                pickImageLauncher.launch("image/*");
+                pickImageLauncher.launch(new String[]{"image/*"});
                 return true;
             } else if (item.getItemId() == R.id.menu_camera) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -281,7 +301,7 @@ public class NewNoteActivity extends AppCompatActivity {
             File outputFile = new File(outputDir, "audio_note_" + timeStamp + ".3gp");
 
             audioFilePath = outputFile.getAbsolutePath();
-            viewModel.setAudioFilePath(audioFilePath);
+            viewModel.addAudioPath(audioFilePath);
 
             mediaRecorder = new MediaRecorder();
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -395,6 +415,7 @@ public class NewNoteActivity extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
     }
+
     private List<CheckListItem> getChecklistItemsFromUI() {
         List<CheckListItem> checklistItems = new ArrayList<>();
         for (int i = 0; i < checklistContainer.getChildCount(); i++) {
@@ -425,62 +446,51 @@ public class NewNoteActivity extends AppCompatActivity {
         return checklistItems;
     }
 
-
     private void saveNote() {
-        // Update ViewModel with latest values from UI
-        viewModel.setTitle(editTitle.getText().toString().trim());
-        viewModel.setContent(edtBelowImage.getText().toString().trim());
-        List<CheckListItem> checklist = getChecklistItemsFromUI();
-        for (int i = 0; i < checklist.size(); i++) {
-            CheckListItem item = checklist.get(i);
-            Log.d("ChecklistDebug", "Item " + i + ": " + item.getText() + " | Checked: " + item.isChecked());
-        }
-        viewModel.setChecklistItems(checklist);
-        List<Uri> drawImages = getDrawImagesFromUI();
-        viewModel.setDrawImages(drawImages);
-        // Ask ViewModel to save the note
+        String title = editTitle.getText().toString().trim();
+        String content = edtContent.getText().toString().trim();
+
+        viewModel.setTitle(title);
+        viewModel.setContent(content);
+        viewModel.setChecklistItems(getChecklistItemsFromUI());
+        viewModel.setDrawingPaths(getDrawImagesFromUI());
+
+        // Lưu ghi chú
         viewModel.saveNote();
     }
 
     private void setupDraw() {
-        drawScreenLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        // Xử lý kết quả trả về từ DrawActivity ở đây
-                        Uri imageUri = result.getData().getData();
+        drawScreenLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                // Xử lý kết quả trả về từ DrawActivity ở đây
+                Uri imageUri = result.getData().getData();
 
+                // Hiển thị ảnh vẽ vào ImageView trong container
+                ImageView imageView = new ImageView(this);
+                imageView.setLayoutParams(new LinearLayout.LayoutParams(200, 200));  // Điều chỉnh kích thước ảnh
+                imageView.setImageURI(imageUri);
 
-                        // Hiển thị ảnh vẽ vào ImageView trong container
-                        ImageView imageView = new ImageView(this);
-                        imageView.setLayoutParams(new LinearLayout.LayoutParams(200, 200));  // Điều chỉnh kích thước ảnh
-                        imageView.setImageURI(imageUri);
+                // Lưu URI của ảnh vào tag của ImageView
+                imageView.setTag(imageUri);
 
-                        // Lưu URI của ảnh vào tag của ImageView
-                        imageView.setTag(imageUri);
-
-                        // Thêm ImageView vào container (imageContainerDraw)
-                        imageContainerDraw.addView(imageView);
-                    }
-                }
-        );
+                // Thêm ImageView vào container (imageContainerDraw)
+                imageContainerDraw.addView(imageView);
+            }
+        });
     }
 
-    private List<Uri> getDrawImagesFromUI() {
-        List<Uri> drawImages = new ArrayList<>();
-
-        // Lấy các ảnh từ ImageView hoặc Container chứa ảnh vẽ
+    private List<String> getDrawImagesFromUI() {
+        List<String> drawingPaths = new ArrayList<>();
         for (int i = 0; i < imageContainerDraw.getChildCount(); i++) {
-            View childView = imageContainerDraw.getChildAt(i);
-            if (childView instanceof ImageView) {
-                ImageView imageView = (ImageView) childView;
-                // Lấy URI của ảnh từ ImageView (bạn có thể điều chỉnh cách lấy URI nếu cần)
-                Uri imageUri = (Uri) imageView.getTag();  // Giả sử bạn lưu URI trong tag của ImageView
-                drawImages.add(imageUri);
+            View itemLayout = imageContainerDraw.getChildAt(i);
+            if (itemLayout instanceof ImageView) {
+                ImageView imageView = (ImageView) itemLayout;
+                Uri imageUri = (Uri) imageView.getTag();
+                if (imageUri != null) {
+                    drawingPaths.add(imageUri.toString());
+                }
             }
         }
-
-        return drawImages;
+        return drawingPaths;
     }
-
 }

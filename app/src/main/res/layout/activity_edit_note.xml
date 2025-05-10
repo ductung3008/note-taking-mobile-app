@@ -1,220 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
     <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/materialToolbar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:elevation="4dp"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme">
+            android:id="@+id/materialToolbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:elevation="4dp"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/arrow_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:contentDescription="Back"
-                app:srcCompat="@drawable/ic_arrow_back" />
+                    android:id="@+id/arrow_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:contentDescription="Back"
+                    app:srcCompat="@drawable/ic_arrow_back" />
 
             <EditText
-                android:id="@+id/editTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/arrow_left"
-                android:background="@null"
-                android:hint="Tiêu đề"
-                android:paddingVertical="8dp"
-                android:paddingStart="10dp"
-                android:textColor="@android:color/black"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/arrow_left" />
+                    android:id="@+id/editTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@+id/arrow_left"
+                    android:background="@null"
+                    android:hint="Tiêu đề"
+                    android:padding="8dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp"
+                    android:textFontWeight="600"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/arrow_left" />
 
             <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="12dp"
-                android:layout_toEndOf="@id/arrow_left"
-                android:text="Thêm ghi chú"
-                android:textColor="@android:color/black"
-                android:textSize="20sp"
-                android:visibility="gone"
-                tools:visibility="gone" />
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="12dp"
+                    android:layout_toEndOf="@id/arrow_left"
+                    android:text="Thêm ghi chú"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp"
+                    android:visibility="gone"
+                    tools:visibility="gone" />
 
             <ImageButton
-                android:id="@+id/btnSave"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentEnd="true"
-                android:layout_marginRight="10dp"
-                android:background="@null"
-                android:contentDescription="Save"
-                android:padding="6dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/check_solid1" />
+                    android:id="@+id/btnSave"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:background="@null"
+                    android:contentDescription="Save"
+                    android:padding="6dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/check_solid1"
+                    android:layout_marginEnd="12dp"
+                    android:layout_centerVertical="true" />
         </RelativeLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <!-- Tiêu đề -->
-    <EditText
-        android:id="@+id/editTitleOld"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@null"
-        android:hint="Tiêu đề"
-        android:paddingVertical="8dp"
-        android:paddingStart="10dp"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/materialToolbar" />
-
     <!-- Scroll nội dung -->
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/editTitleOld"
-        app:layout_constraintBottom_toTopOf="@id/wrapperButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+            android:id="@+id/scrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintTop_toBottomOf="@id/materialToolbar"
+            app:layout_constraintBottom_toTopOf="@id/wrapperButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <!--            <EditText-->
-            <!--                android:id="@+id/edtAboveImage"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:background="@null"-->
-            <!--                android:hint="Nhập nội dung phía trên ảnh"-->
-            <!--                android:minLines="3"-->
-            <!--                android:textColor="@color/black"-->
-            <!--                android:inputType="textMultiLine"-->
-            <!--                android:textSize="16sp" />-->
-
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginVertical="12dp"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                android:visibility="gone" />
-            <TextView
-                android:id="@+id/audioPreview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Phát lại ghi âm"
-                android:textColor="@color/black"
-                android:padding="8dp"
-                android:visibility="gone"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toBottomOf="@id/btnRecord"
-                app:layout_constraintStart_toStartOf="parent"/>
-
-            <Button
-                android:id="@+id/playButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="Phát lại ghi âm" />
-
-            <EditText
-                android:id="@+id/edtBelowImage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:hint="Nội dung"
-                android:minLines="3"
-                android:textColor="@color/black"
-                android:inputType="textMultiLine"
-                android:textSize="16sp" />
-
-            <LinearLayout
-                android:id="@+id/checklistContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="8dp"/>
+                android:padding="16dp">
+
+            <LinearLayout
+                    android:id="@+id/imageContainer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            <LinearLayout
+                    android:id="@+id/imageContainerDraw"
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            <TextView
+                    android:id="@+id/audioPreview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phát lại ghi âm"
+                    android:textColor="@color/black"
+                    android:padding="8dp"
+                    android:visibility="gone"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:layout_constraintTop_toBottomOf="@id/btnRecord"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                    android:id="@+id/playButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="Phát lại ghi âm" />
+
+            <EditText
+                    android:id="@+id/edtContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|start"
+                    android:background="@null"
+                    android:hint="Nội dung"
+                    android:textColor="@color/black"
+                    android:inputType="textMultiLine"
+                    android:layout_marginTop="12dp"
+                    android:minLines="3"
+                    android:textSize="16sp" />
+
+            <LinearLayout
+                    android:id="@+id/checklistContainer"
+                    android:minHeight="40dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <!-- Thanh công cụ dưới cùng -->
     <LinearLayout
-        android:id="@+id/wrapperButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:gravity="start"
-        android:orientation="horizontal"
-        android:paddingHorizontal="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+            android:id="@+id/wrapperButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:gravity="start"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
-            android:id="@+id/btnImage"
-            android:layout_width="36dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:background="@null"
-            android:contentDescription="Chèn ảnh"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/image" />
+                android:id="@+id/btnImage"
+                android:layout_width="36dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="16dp"
+                android:background="@null"
+                android:contentDescription="Chèn ảnh"
+                android:padding="8dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/image" />
 
         <ImageButton
-            android:id="@+id/btnRecord"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:background="@null"
-            android:contentDescription="Ghi âm"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/microphone" />
+                android:id="@+id/btnRecord"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="16dp"
+                android:background="@null"
+                android:contentDescription="Ghi âm"
+                android:padding="8dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/microphone" />
 
         <ImageButton
-            android:id="@+id/btnChecklist"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@null"
-            android:contentDescription="Checklist"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/square_check_solid" />
+                android:id="@+id/btnChecklist"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="16dp"
+                android:background="@null"
+                android:contentDescription="Checklist"
+                android:padding="8dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/square_check_solid" />
 
+        <ImageButton
+                android:id="@+id/btnDraw"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@null"
+                android:contentDescription="Vẽ"
+                android:padding="8dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/pencil_solid" />
     </LinearLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

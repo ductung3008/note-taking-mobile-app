@@ -27,12 +27,22 @@ public class EditNoteViewModel extends AndroidViewModel {
     private Note currentNote;
     private String title = "";
     private String content = "";
-    private Uri imageUri = null;
-    private String audioFilePath = null;
+    private List<String> imagePaths = new ArrayList<>();
+    private List<String> audioPaths = null;
+    private List<String> drawingPaths = new ArrayList<>();
 
     public EditNoteViewModel(@NonNull Application application) {
         super(application);
         noteRepository = new NoteRepository(application);
+    }
+
+    public Note getCurrentNote() {
+        title = currentNote.getTitle();
+        content = currentNote.getContent();
+        imagePaths = new ArrayList<>(currentNote.getImagePaths());
+        audioPaths = new ArrayList<>(currentNote.getAudioPaths());
+        drawingPaths = new ArrayList<>(currentNote.getDrawingPaths());
+        return currentNote;
     }
 
     public void setCurrentNote(Note note) {
@@ -40,26 +50,37 @@ public class EditNoteViewModel extends AndroidViewModel {
         this.title = note.getTitle();
         this.content = note.getContent();
 
-        // Keep existing image paths if they exist
-        if (note.getImagePaths() != null && !note.getImagePaths().isEmpty()) {
-            String imagePath = note.getImagePaths().get(0);
-            if (imagePath.startsWith("content://")) {
-                this.imageUri = Uri.parse(imagePath);
+        if (note.getImagePaths() != null) {
+            this.imagePaths = new ArrayList<>(note.getImagePaths());
+        }
+
+        if (note.getAudioPaths() != null) {
+            this.audioPaths = new ArrayList<>(note.getAudioPaths());
+        }
+
+        if (note.getDrawingPaths() != null) {
+            this.drawingPaths = new ArrayList<>(note.getDrawingPaths());
+        }
+    }
+
+    public void addImagePath(Uri imageUri) {
+        if (imageUri != null) {
+            imagePaths.add(String.valueOf(imageUri));
+        }
+    }
+
+    public void addImagePaths(List<Uri> imageUris) {
+        for (Uri imageUri : imageUris) {
+            if (imageUri != null) {
+                imagePaths.add(String.valueOf(imageUri));
             }
         }
+    }
 
-        // Keep existing audio paths if they exist
-        if (note.getAudioPaths() != null && !note.getAudioPaths().isEmpty()) {
-            this.audioFilePath = note.getAudioPaths().get(0);
+    public void addAudioPath(String audioPath) {
+        if (audioPath != null) {
+            audioPaths.add(audioPath);
         }
-    }
-
-    public void setImageUri(Uri imageUri) {
-        this.imageUri = imageUri;
-    }
-
-    public void setAudioFilePath(String audioFilePath) {
-        this.audioFilePath = audioFilePath;
     }
 
     public void setTitle(String title) {
@@ -71,18 +92,11 @@ public class EditNoteViewModel extends AndroidViewModel {
     }
 
     public void updateNote() {
-        Toast.makeText(getApplication(), "Title: " + title + "\nContent: " + content, Toast.LENGTH_SHORT).show();
         if (title.trim().isEmpty() || content.trim().isEmpty()) {
             _errorMessage.setValue("Vui lòng nhập đầy đủ tiêu đề và nội dung");
             return;
         }
 
-        if (currentNote == null) {
-            _errorMessage.setValue("Không tìm thấy ghi chú cần chỉnh sửa");
-            return;
-        }
-
-        // Update the current note's properties
         currentNote.setTitle(title);
         currentNote.setContent(content);
         currentNote.setImagePaths(getSelectedImagePaths());
@@ -94,23 +108,34 @@ public class EditNoteViewModel extends AndroidViewModel {
     }
 
     private List<String> getSelectedImagePaths() {
-        List<String> imagePaths = new ArrayList<>();
-
-        if (imageUri != null) {
-            String imagePath = imageUri.toString();
-            imagePaths.add(imagePath);
+        List<String> selectedImagePaths = new ArrayList<>();
+        for (String imagePath : imagePaths) {
+            if (imagePath != null) {
+                selectedImagePaths.add(imagePath);
+            }
         }
-
-        return imagePaths;
+        return selectedImagePaths;
     }
 
     private List<String> getRecordedAudioPaths() {
-        List<String> audioPaths = new ArrayList<>();
-
-        if (audioFilePath != null && new File(audioFilePath).exists()) {
-            audioPaths.add(audioFilePath);
+        List<String> recordedAudioPaths = new ArrayList<>();
+        if (audioPaths != null) {
+            for (String audioPath : audioPaths) {
+                if (audioPath != null) {
+                    recordedAudioPaths.add(audioPath);
+                }
+            }
         }
+        return recordedAudioPaths;
+    }
 
-        return audioPaths;
+    private List<String> getDrawImagePaths() {
+        List<String> drawImagePaths = new ArrayList<>();
+        for (String drawImagePath : drawingPaths) {
+            if (drawImagePath != null) {
+                drawImagePaths.add(drawImagePath);
+            }
+        }
+        return drawImagePaths;
     }
 }
