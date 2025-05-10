@@ -104,12 +104,17 @@ public class DeletedNoteActivity extends AppCompatActivity implements NoteAdapte
 
     // Xử lý khi click vào một mục ghi chú trong thùng rác
     @Override
-    public void onNoteClick(int position) {
+    public void onClick(int position) {
         // TODO: Xử lý khi click vào ghi chú trong thùng rác.
         // Có thể hiển thị một menu ngữ cảnh (PopupMenu) với các tùy chọn
         // "Khôi phục" và "Xóa vĩnh viễn".
         Note clickedNote = deletedNoteAdapter.getNotes().get(position);
         showNoteOptionsPopup(clickedNote, position);
+    }
+
+    @Override
+    public boolean onLongClick(int position) {
+        return false;
     }
 
     // Phương thức hiển thị PopupMenu cho ghi chú đã xóa
