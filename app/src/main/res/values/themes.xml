@@ -4,7 +4,12 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="android:fontFamily">@font/misans</item>
+
+
+
     </style>
 
     <style name="Theme.NoteTakingApp" parent="Base.Theme.NoteTakingApp" />
+
+
 </resources>
