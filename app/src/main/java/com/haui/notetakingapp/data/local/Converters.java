@@ -1,6 +1,7 @@
 package com.haui.notetakingapp.data.local;
 
 import androidx.room.TypeConverter;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.haui.notetakingapp.data.local.entity.CheckListItem;
@@ -39,7 +40,8 @@ public class Converters {
     @TypeConverter
     public static List<CheckListItem> toCheckListItemList(String value) {
         try {
-            Type listType = new TypeToken<List<CheckListItem>>(){}.getType();
+            Type listType = new TypeToken<List<CheckListItem>>() {
+            }.getType();
             return new Gson().fromJson(value, listType);
         } catch (Exception e) {
             e.printStackTrace();

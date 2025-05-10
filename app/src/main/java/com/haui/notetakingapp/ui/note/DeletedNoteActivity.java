@@ -1,14 +1,12 @@
 package com.haui.notetakingapp.ui.note;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
-import com.haui.notetakingapp.ui.home.NoteAdapter; // Có thể tái sử dụng hoặc tạo adapter mới
+import com.haui.notetakingapp.ui.home.NoteAdapter;
 import com.haui.notetakingapp.viewmodel.DeletedNoteViewModel;
 
 import java.util.ArrayList;
