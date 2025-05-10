@@ -2,15 +2,18 @@ package com.haui.notetakingapp.ui.note;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -27,6 +30,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -38,10 +42,12 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.viewmodel.EditNoteViewModel;
-import com.haui.notetakingapp.viewmodel.NewNoteViewModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,22 +57,22 @@ import java.util.Locale;
 
 public class EditNoteActivity extends AppCompatActivity {
     private static final int REQUEST_RECORD_AUDIO = 102;
+    private final int checklistCount = 0;
     private ImageView imageView;
     private TextView audioPreview;
     private Button playButton;
-    private EditText editTitle, edtBelowImage;
+    private EditText editTitle, edtContent;
     private ImageButton btnChecklist, btnSave, btnImage, btnRecord;
-    private LinearLayout checklistContainer;
+    private LinearLayout imageContainer, checklistContainer;
     private Uri imageUri;
     private ActivityResultLauncher<Uri> takePictureLauncher;
-    private ActivityResultLauncher<String> pickImageLauncher;
+    private ActivityResultLauncher<String[]> pickImageLauncher;
     private MediaRecorder mediaRecorder;
     private MediaPlayer mediaPlayer;
     private boolean isRecording = false;
-    private String audioFilePath;
-    private final int checklistCount = 0;
-
+    private String audioPath;
     private EditNoteViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +87,8 @@ public class EditNoteActivity extends AppCompatActivity {
             return insets;
         });
 
+        observeViewModel();
+
         // Ẩn/hiện nút khi bàn phím mở
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, windowInsets) -> {
@@ -88,104 +96,42 @@ public class EditNoteActivity extends AppCompatActivity {
             v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
             return WindowInsetsCompat.CONSUMED;
         });
+
         myMapping();
-
         myDisplay();
-
         setupImagePickers();
-
-        audioFilePath = null;
-
+        audioPath = null;
         setupButtonActions();
+    }
 
+    private void observeViewModel() {
+        // Observe save success
+        viewModel.saveSuccess.observe(this, success -> {
+            if (success) {
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
 
-
+        // Observe error messages
+        viewModel.errorMessage.observe(this, message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void myMapping() {
-        imageView = findViewById(R.id.imageView);
         audioPreview = findViewById(R.id.audioPreview);
+        imageContainer = findViewById(R.id.imageContainer);
         playButton = findViewById(R.id.playButton);
         editTitle = findViewById(R.id.editTitle);
-        edtBelowImage = findViewById(R.id.edtBelowImage);
+        edtContent = findViewById(R.id.edtContent);
         btnChecklist = findViewById(R.id.btnChecklist);
         btnSave = findViewById(R.id.btnSave);
         btnImage = findViewById(R.id.btnImage);
         btnRecord = findViewById(R.id.btnRecord);
         checklistContainer = findViewById(R.id.checklistContainer);
-    }
-
-
-    private void myDisplay() {
-        Note note = (Note) getIntent().getSerializableExtra("noteToEdit");
-
-        if (note != null) {
-            // Pass the note to the ViewModel
-            viewModel.setCurrentNote(note);
-
-            // Set UI elements
-            editTitle.setText(note.getTitle());
-            edtBelowImage.setText(note.getContent());
-
-            if (note.getImagePaths() != null && !note.getImagePaths().isEmpty()) {
-                String imagePath = note.getImagePaths().get(0);
-
-                // Show imageView
-                imageView.setVisibility(View.VISIBLE);
-
-                Uri imageUri = imagePath.startsWith("content://") ?
-                        Uri.parse(imagePath) : Uri.fromFile(new java.io.File(imagePath));
-
-                Glide.with(this)
-                        .load(imageUri)
-                        .placeholder(R.drawable.ic_launcher_background)
-                        .error(R.drawable.ic_launcher_foreground)
-                        .into(imageView);
-
-                // Set the URI in the ViewModel
-                viewModel.setImageUri(imageUri);
-            } else {
-                imageView.setVisibility(View.GONE);
-            }
-
-            // Handle audio if exists
-            if (note.getAudioPaths() != null && !note.getAudioPaths().isEmpty()) {
-                audioFilePath = note.getAudioPaths().get(0);
-                viewModel.setAudioFilePath(audioFilePath);
-
-                // Show audio controls if audio exists
-                audioPreview.setVisibility(View.VISIBLE);
-                playButton.setVisibility(View.VISIBLE);
-                playButton.setText(new File(audioFilePath).getName());
-            }
-        }
-    }
-
-
-
-
-
-    private void setupImagePickers() {
-        // Khởi tạo launcher chụp ảnh
-        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
-            if (result && imageUri != null) {
-                imageView.setImageURI(imageUri);
-                imageView.setVisibility(View.VISIBLE);
-                viewModel.setImageUri(imageUri);
-            }
-        });
-
-        // Khởi tạo launcher chọn ảnh
-        pickImageLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-            if (uri != null) {
-                imageUri = uri;
-                imageView.setImageURI(imageUri);
-                imageView.setVisibility(View.VISIBLE);
-                viewModel.setImageUri(imageUri);
-            }
-        });
-
-
     }
 
     private void setupButtonActions() {
@@ -196,12 +142,97 @@ public class EditNoteActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> updateNote());
     }
 
+    private void addImageToView(Uri imageUri) {
+        ImageView image = new ImageView(this);
+        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 8, 0, 8);
+        image.setLayoutParams(params);
+
+        imageContainer.addView(image);
+
+        Glide.with(this)
+                .asBitmap()
+                .load(imageUri)
+                .override(Target.SIZE_ORIGINAL)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        int width = resource.getWidth() / 2;
+                        int height = resource.getHeight() / 2;
+                        Bitmap resizedBitmap = Bitmap.createScaledBitmap(resource, width, height, true);
+                        image.getLayoutParams().width = width;
+                        image.getLayoutParams().height = height;
+                        image.setImageBitmap(resizedBitmap);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+    }
+
+    private void myDisplay() {
+        Note note = (Note) getIntent().getSerializableExtra("noteToEdit");
+
+        if (note != null) {
+            // Pass the note to the ViewModel
+            viewModel.setCurrentNote(note);
+
+            // Set UI elements
+            editTitle.setText(note.getTitle());
+            edtContent.setText(note.getContent());
+
+            if (note.getImagePaths() != null && !note.getImagePaths().isEmpty()) {
+                for (String imageUri : note.getImagePaths()) {
+                    addImageToView(Uri.parse(imageUri));
+                }
+
+                viewModel.addImagePath(imageUri);
+            } else {
+                imageView.setVisibility(View.GONE);
+            }
+
+            // Handle audio if exists
+            if (note.getAudioPaths() != null && !note.getAudioPaths().isEmpty()) {
+                audioPath = note.getAudioPaths().get(0);
+                viewModel.addAudioPath(audioPath);
+
+                // Show audio controls if audio exists
+                audioPreview.setVisibility(View.VISIBLE);
+                playButton.setVisibility(View.VISIBLE);
+                playButton.setText(new File(audioPath).getName());
+            }
+        }
+    }
+
+    private void setupImagePickers() {
+        // Khởi tạo launcher chụp ảnh
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
+            addImageToView(imageUri);
+            viewModel.addImagePath(imageUri);
+        });
+
+        // Khởi tạo launcher chọn ảnh
+        pickImageLauncher = registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), uris -> {
+            if (uris != null && !uris.isEmpty()) {
+                for (Uri uri : uris) {
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    addImageToView(uri);
+                }
+                viewModel.addImagePaths(uris);
+            }
+        });
+    }
+
     private void showImagePopup() {
         PopupMenu popup = new PopupMenu(this, btnImage);
         popup.getMenuInflater().inflate(R.menu.menu_image_button, popup.getMenu());
         popup.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.menu_gallery) {
-                pickImageLauncher.launch("image/*");
+                pickImageLauncher.launch(new String[]{"image/*"});
                 return true;
             } else if (item.getItemId() == R.id.menu_camera) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -233,7 +264,7 @@ public class EditNoteActivity extends AppCompatActivity {
     }
 
     private void playAudio() {
-        if (audioFilePath == null) {
+        if (audioPath == null) {
             Toast.makeText(this, "Không có file ghi âm để phát", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -246,7 +277,7 @@ public class EditNoteActivity extends AppCompatActivity {
         } else {
             mediaPlayer = new MediaPlayer();
             try {
-                mediaPlayer.setDataSource(audioFilePath);
+                mediaPlayer.setDataSource(audioPath);
                 mediaPlayer.prepare();
                 mediaPlayer.start();
                 Toast.makeText(this, "Đang phát...", Toast.LENGTH_SHORT).show();
@@ -294,13 +325,13 @@ public class EditNoteActivity extends AppCompatActivity {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             File outputFile = new File(outputDir, "audio_note_" + timeStamp + ".3gp");
 
-            audioFilePath = outputFile.getAbsolutePath();
-            viewModel.setAudioFilePath(audioFilePath);
+            audioPath = outputFile.getAbsolutePath();
+            viewModel.addAudioPath(audioPath);
 
             mediaRecorder = new MediaRecorder();
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mediaRecorder.setOutputFile(audioFilePath);
+            mediaRecorder.setOutputFile(audioPath);
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
             try {
@@ -404,19 +435,12 @@ public class EditNoteActivity extends AppCompatActivity {
     }
 
     private void updateNote() {
-        // Get and trim title text
-        String titleText = editTitle.getText().toString().trim();
+        String title = editTitle.getText().toString();
+        String content = edtContent.getText().toString();
 
-        // Show toast for debugging
-        Toast.makeText(this, "Title: " + titleText, Toast.LENGTH_SHORT).show();
+        viewModel.setTitle(title);
+        viewModel.setContent(content);
 
-        // Update ViewModel with latest values from UI
-        viewModel.setTitle(titleText);
-        viewModel.setContent(edtBelowImage.getText().toString().trim());
-
-        // Ask ViewModel to save the note
         viewModel.updateNote();
     }
-
-
 }

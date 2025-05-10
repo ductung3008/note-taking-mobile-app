@@ -33,6 +33,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     };
     private List<Note> notes;
     private OnNoteListener onNoteListener; // Thêm biến listener
+    private OnNoteClickListener listener;
 
     // Constructor cũ
     public NoteAdapter(List<Note> notes) {
@@ -44,12 +45,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         this.notes = notes;
         this.onNoteListener = onNoteListener;
     }
-
-    public interface OnNoteClickListener {
-        void onNoteClick(Note note);
-    }
-
-    private OnNoteClickListener listener;
 
     public void setOnNoteClickListener(OnNoteClickListener listener) {
         this.listener = listener;
@@ -95,8 +90,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         holder.ivAudioIndicator.setVisibility((note.getAudioPaths() != null && !note.getAudioPaths().isEmpty()) ? View.VISIBLE : View.GONE);
         holder.ivDrawingIndicator.setVisibility((note.getDrawingPaths() != null && !note.getDrawingPaths().isEmpty()) ? View.VISIBLE : View.GONE);
     }
-
-
 
     private void setupNoteImage(NoteViewHolder holder, Note note) {
         holder.imageContainer.removeAllViews(); // Xóa các view ảnh cũ trước khi thêm mới
@@ -192,15 +185,19 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         return notes.size();
     }
 
+    // Phương thức lấy danh sách ghi chú (để sử dụng trong Activity khi click)
+    public List<Note> getNotes() {
+        return notes;
+    }
+
     // Phương thức cập nhật danh sách ghi chú và thông báo cho adapter
     public void setNotes(List<Note> notes) {
         this.notes = notes;
         notifyDataSetChanged();
     }
 
-    // Phương thức lấy danh sách ghi chú (để sử dụng trong Activity khi click)
-    public List<Note> getNotes() {
-        return notes;
+    public interface OnNoteClickListener {
+        void onNoteClick(Note note);
     }
 
     // Định nghĩa Interface Listener
@@ -209,7 +206,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     }
 
     static class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
         TextView tvTitle;
         TextView tvContent;
         TextView tvDate;
