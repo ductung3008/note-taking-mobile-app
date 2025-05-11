@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.core.content.FileProvider;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -125,17 +127,17 @@ public class FileManager {
      *
      * @param context Application context
      * @param bitmap  Bitmap of the drawing
-     * @param noteId  ID of the note this drawing belongs to
-     * @return Path to the saved drawing file, or null if saving failed
+     * @return Uri of the saved drawing file, or null if saving failed
      */
-    public static String saveDrawing(Context context, Bitmap bitmap, String noteId) {
+    public static Uri saveDrawing(Context context, Bitmap bitmap) {
         File directory = getDirectory(context, DRAWING_DIR);
-        String fileName = noteId + "_" + UUID.randomUUID().toString() + ".png";
+        String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID().toString() + ".png";
         File file = new File(directory, fileName);
+        Log.d(TAG, "saveDrawing: " + file.getAbsolutePath());
 
         try (FileOutputStream fos = new FileOutputStream(file)) {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            return file.getAbsolutePath();
+            return FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
         } catch (IOException e) {
             Log.e(TAG, "Error saving drawing: " + e.getMessage());
             return null;

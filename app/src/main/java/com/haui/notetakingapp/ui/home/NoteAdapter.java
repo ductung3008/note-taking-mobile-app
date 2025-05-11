@@ -88,7 +88,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         holder.imageContainer.removeAllViews(); // Xóa các view ảnh cũ trước khi thêm mới
 
         // Nếu không có đường dẫn ảnh hoặc danh sách rỗng, ẩn container và thoát
-        if (note.getImagePaths() == null || note.getImagePaths().isEmpty()) {
+        if ((note.getImagePaths() == null || note.getImagePaths().isEmpty())
+                && (note.getDrawingPaths() == null || note.getDrawingPaths().isEmpty())) {
             holder.imageContainer.setVisibility(View.GONE);
             return;
         }
@@ -97,7 +98,12 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         holder.imageContainer.setVisibility(View.VISIBLE);
 
         // Lấy đường dẫn ảnh đầu tiên để hiển thị thumbnail
-        String imagePath = note.getImagePaths().get(0);
+        String imagePath = null;
+        if (note.getImagePaths() != null && !note.getImagePaths().isEmpty()) {
+            imagePath = note.getImagePaths().get(0);
+        } else if (note.getDrawingPaths() != null && !note.getDrawingPaths().isEmpty()) {
+            imagePath = note.getDrawingPaths().get(0);
+        }
 
         // Tạo ImageView để hiển thị ảnh
         ImageView imageView = new ImageView(holder.itemView.getContext());

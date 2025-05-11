@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <external-files-path
-            name="my_images"
+            name="external_files"
             path="." />
+    <!-- Add paths for internal files -->
+    <files-path
+            name="note_images"
+            path="note_images/" />
+    <files-path
+            name="note_audio"
+            path="note_audio/" />
+    <files-path
+            name="note_drawings"
+            path="note_drawings/" />
 </paths>
