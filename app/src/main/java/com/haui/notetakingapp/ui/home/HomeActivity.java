@@ -26,7 +26,7 @@ import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.ui.note.DeletedNoteActivity;
 import com.haui.notetakingapp.ui.note.EditNoteActivity;
 import com.haui.notetakingapp.ui.note.NewNoteActivity;
-import com.haui.notetakingapp.ui.setting.Setting;
+import com.haui.notetakingapp.ui.setting.SettingActivity;
 import com.haui.notetakingapp.viewmodel.HomeViewModel;
 
 import java.util.ArrayList;
@@ -63,9 +63,7 @@ public class HomeActivity extends AppCompatActivity implements NoteAdapter.OnNot
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         // Observe notes from ViewModel
-        viewModel.getAllNotes().observe(this, notes -> {
-            noteAdapter.setNotes(notes);
-        });
+        viewModel.getAllNotes().observe(this, notes -> noteAdapter.setNotes(notes));
 
         // Initialize activity launcher for new note creation
         setupNewNoteActivityLauncher();
@@ -117,7 +115,7 @@ public class HomeActivity extends AppCompatActivity implements NoteAdapter.OnNot
         });
 
         btnSetting.setOnClickListener(view -> {
-            Intent intent = new Intent(HomeActivity.this, Setting.class);
+            Intent intent = new Intent(HomeActivity.this, SettingActivity.class);
             startActivity(intent);
         });
     }
@@ -173,9 +171,9 @@ public class HomeActivity extends AppCompatActivity implements NoteAdapter.OnNot
             startActivity(Intent.createChooser(shareIntent, "Chia sẻ ghi chú"));
             bottomSheetDialog.dismiss();
         });
-        
+
         bottomSheetDialog.show();
-        
+
         return true;
     }
 }
