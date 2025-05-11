@@ -10,22 +10,23 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.OnBackPressedDispatcher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.github.gcacace.signaturepad.views.SignaturePad;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.haui.notetakingapp.R;
-import com.github.gcacace.signaturepad.views.SignaturePad;
-import petrov.kristiyan.colorpicker.ColorPicker;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import petrov.kristiyan.colorpicker.ColorPicker;
 
 public class DrawActivity extends AppCompatActivity {
     private FloatingActionButton fbColourPicker, fbUndo;
@@ -56,7 +57,8 @@ public class DrawActivity extends AppCompatActivity {
         setupDrawingButtons();
         btnSave.setOnClickListener(v -> saveDrawingAndFinish());
     }
-    private void myMapping(){
+
+    private void myMapping() {
         signaturePad = findViewById(R.id.signature_pad);
         fbColourPicker = findViewById(R.id.fb_colour_picker);
         fbUndo = findViewById(R.id.fb_undo);
@@ -101,6 +103,7 @@ public class DrawActivity extends AppCompatActivity {
                     .show();
         });
     }
+
     private void saveDrawingAndFinish() {
         Bitmap bitmap = signaturePad.getSignatureBitmap();
         File file = saveBitmapToFile(bitmap);
@@ -149,7 +152,6 @@ public class DrawActivity extends AppCompatActivity {
             return null; // Trả về null nếu có lỗi khi lưu tệp
         }
     }
-
 
 
 }

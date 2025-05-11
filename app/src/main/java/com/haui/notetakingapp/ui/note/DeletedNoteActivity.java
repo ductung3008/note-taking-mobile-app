@@ -1,14 +1,12 @@
 package com.haui.notetakingapp.ui.note;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
-import com.haui.notetakingapp.ui.home.NoteAdapter; // Có thể tái sử dụng hoặc tạo adapter mới
+import com.haui.notetakingapp.ui.home.NoteAdapter;
 import com.haui.notetakingapp.viewmodel.DeletedNoteViewModel;
 
 import java.util.ArrayList;
@@ -106,12 +104,17 @@ public class DeletedNoteActivity extends AppCompatActivity implements NoteAdapte
 
     // Xử lý khi click vào một mục ghi chú trong thùng rác
     @Override
-    public void onNoteClick(int position) {
+    public void onClick(int position) {
         // TODO: Xử lý khi click vào ghi chú trong thùng rác.
         // Có thể hiển thị một menu ngữ cảnh (PopupMenu) với các tùy chọn
         // "Khôi phục" và "Xóa vĩnh viễn".
         Note clickedNote = deletedNoteAdapter.getNotes().get(position);
         showNoteOptionsPopup(clickedNote, position);
+    }
+
+    @Override
+    public boolean onLongClick(int position) {
+        return false;
     }
 
     // Phương thức hiển thị PopupMenu cho ghi chú đã xóa

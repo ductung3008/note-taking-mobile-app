@@ -2,7 +2,6 @@ package com.haui.notetakingapp.viewmodel;
 
 import android.app.Application;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -13,7 +12,6 @@ import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.repository.NoteRepository;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,16 +20,15 @@ public class NewNoteViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Boolean> _saveSuccess = new MutableLiveData<>();
     private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
-    private MutableLiveData<List<CheckListItem>> checklistItems = new MutableLiveData<>(new ArrayList<>());
     public LiveData<Boolean> saveSuccess = _saveSuccess;
     public LiveData<String> errorMessage = _errorMessage;
 
     private String title = "";
     private String content = "";
-    private List<Uri> imageUris = new ArrayList<>();
-    private String audioFilePath = null;
-//    private List<String> checklistItems = new ArrayList<>();
-    private List<Uri> drawImages = new ArrayList<>();
+    private List<String> imagePaths = new ArrayList<>();
+    private List<String> audioPaths = null;
+    private List<String> drawingPaths = new ArrayList<>();
+    private MutableLiveData<List<CheckListItem>> checklistItems = new MutableLiveData<>(new ArrayList<>());
 
 
     public NewNoteViewModel(@NonNull Application application) {
@@ -47,21 +44,34 @@ public class NewNoteViewModel extends AndroidViewModel {
         this.content = content;
     }
 
-    public void setImageUri(Uri imageUri) {
+    public void addImagePath(Uri imageUri) {
         if (imageUri != null) {
-            imageUris.add(imageUri);
+            imagePaths.add(String.valueOf(imageUri));
         }
     }
 
-    public void setAudioFilePath(String audioFilePath) {
-        this.audioFilePath = audioFilePath;
+    public void addImagePaths(List<Uri> imageUris) {
+        for (Uri imageUri : imageUris) {
+            if (imageUri != null) {
+                imagePaths.add(String.valueOf(imageUri));
+            }
+        }
     }
+
+    public void addAudioPath(String audioPath) {
+        if (audioPath != null) {
+            audioPaths.add(audioPath);
+        }
+    }
+
     public LiveData<List<CheckListItem>> getChecklistItems() {
         return checklistItems;
     }
+
     public void setChecklistItems(List<CheckListItem> items) {
         checklistItems.setValue(items);
     }
+
     public void addChecklistItem(CheckListItem item) {
         List<CheckListItem> items = checklistItems.getValue();
         if (items != null) {
@@ -78,12 +88,12 @@ public class NewNoteViewModel extends AndroidViewModel {
         }
     }
 
-    public List<Uri> getDrawImages() {
-        return drawImages;
+    public List<String> getDrawingPaths() {
+        return drawingPaths;
     }
 
-    public void setDrawImages(List<Uri> drawImages) {
-        this.drawImages = drawImages;
+    public void setDrawingPaths(List<String> drawingPaths) {
+        this.drawingPaths = drawingPaths;
     }
 
     public void saveNote() {
@@ -95,38 +105,43 @@ public class NewNoteViewModel extends AndroidViewModel {
         Note note = new Note(title, content);
         note.setImagePaths(getSelectedImagePaths());
         note.setAudioPaths(getRecordedAudioPaths());
+        note.setCreatedAt(System.currentTimeMillis());
         note.setUpdatedAt(System.currentTimeMillis());
         note.setChecklistItems(checklistItems.getValue());
         note.setDrawingPaths(getDrawImagePaths());
+
         noteRepository.insert(note);
         _saveSuccess.setValue(true);
     }
 
     private List<String> getSelectedImagePaths() {
-        List<String> imagePaths = new ArrayList<>();
-
-        for (Uri uri : imageUris) {
-            imagePaths.add(uri.toString());
+        List<String> selectedImagePaths = new ArrayList<>();
+        for (String imagePath : imagePaths) {
+            if (imagePath != null) {
+                selectedImagePaths.add(imagePath);
+            }
         }
-
-        return imagePaths;
+        return selectedImagePaths;
     }
 
     private List<String> getRecordedAudioPaths() {
-        List<String> audioPaths = new ArrayList<>();
-
-        if (audioFilePath != null && new File(audioFilePath).exists()) {
-            audioPaths.add(audioFilePath);
+        List<String> recordedAudioPaths = new ArrayList<>();
+        if (audioPaths != null) {
+            for (String audioPath : audioPaths) {
+                if (audioPath != null) {
+                    recordedAudioPaths.add(audioPath);
+                }
+            }
         }
-
-        return audioPaths;
+        return recordedAudioPaths;
     }
-
 
     private List<String> getDrawImagePaths() {
         List<String> drawImagePaths = new ArrayList<>();
-        for (Uri uri : drawImages) {
-            drawImagePaths.add(uri.toString());  // Chuyển đổi Uri thành String
+        for (String drawImagePath : drawingPaths) {
+            if (drawImagePath != null) {
+                drawImagePaths.add(drawImagePath);
+            }
         }
         return drawImagePaths;
     }

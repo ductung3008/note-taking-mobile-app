@@ -5,7 +5,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.setting.Setting"
+        tools:context=".ui.setting.SettingActivity"
         android:orientation="vertical"
         android:background="@color/app_background">
 
@@ -48,24 +48,30 @@
                     style="@style/SettingCategoryTitle"
                     android:text="@string/tv_setting_cloud" />
 
-            <LinearLayout style="@style/SettingRow">
+            <LinearLayout
+                    style="@style/SettingRow"
+                    android:id="@+id/row_login">
 
                 <TextView
                         style="@style/SettingItem"
+                        android:id="@+id/tvLogin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/tv_setting_login"
+                        android:text="@string/tv_login"
                         app:drawableEndCompat="@drawable/ic_chevron_right" />
 
             </LinearLayout>
 
-            <LinearLayout style="@style/SettingRow">
+            <LinearLayout
+                    style="@style/SettingRow"
+                    android:id="@+id/row_register">
 
                 <TextView
                         style="@style/SettingItem"
+                        android:id="@+id/tvRegister"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/tv_setting_register"
+                        android:text="@string/tv_register"
                         app:drawableEndCompat="@drawable/ic_chevron_right" />
 
             </LinearLayout>
@@ -87,7 +93,7 @@
                 <TextView
                         style="@style/SettingSelectedOption"
                         android:id="@+id/text_selected_text_size"
-                        android:text="Nhỏ" />
+                        android:text="@string/tv_default_text_size" />
 
             </LinearLayout>
 
@@ -102,7 +108,7 @@
                 <TextView
                         style="@style/SettingSelectedOption"
                         android:id="@+id/text_selected_sort_by"
-                        android:text="Theo ngày tạo" />
+                        android:text="@string/tv_default_sort_by" />
             </LinearLayout>
 
             <LinearLayout
@@ -116,7 +122,7 @@
                 <TextView
                         style="@style/SettingSelectedOption"
                         android:id="@+id/text_selected_layout"
-                        android:text="Xem theo danh sách" />
+                        android:text="@string/tv_default_layout" />
             </LinearLayout>
 
             <LinearLayout
@@ -130,7 +136,7 @@
                 <TextView
                         style="@style/SettingSelectedOption"
                         android:id="@+id/text_selected_theme"
-                        android:text="Sáng" />
+                        android:text="@string/tv_default_theme" />
             </LinearLayout>
 
             <View style="@style/DividerStyle" />
