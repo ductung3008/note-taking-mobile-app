@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@color/app_background">
 
     <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -23,40 +23,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <ImageView
-                    android:id="@+id/arrow_left"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:contentDescription="Back"
-                    app:srcCompat="@drawable/ic_arrow_back" />
+            <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:id="@+id/btnBack"
+                    android:layout_alignParentStart="true"
+                    android:background="@null"
+                    android:contentDescription="@string/btn_back_desc"
+                    android:padding="6dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_arrow_back"
+                    android:layout_centerVertical="true" />
 
             <EditText
-                    android:id="@+id/editTitle"
+                    android:id="@+id/edtTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/arrow_left"
+                    android:layout_toEndOf="@+id/btnBack"
                     android:background="@null"
                     android:hint="Tiêu đề"
+                    android:autofillHints="@null"
                     android:padding="8dp"
                     android:textColor="@android:color/black"
                     android:textSize="20sp"
                     android:textFontWeight="600"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/arrow_left" />
-
-            <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="12dp"
-                    android:layout_toEndOf="@id/arrow_left"
-                    android:text="Thêm ghi chú"
-                    android:textColor="@android:color/black"
-                    android:textSize="20sp"
-                    android:visibility="gone"
-                    tools:visibility="gone" />
+                    app:layout_constraintStart_toStartOf="@id/btnBack" />
 
             <ImageButton
                     android:id="@+id/btnSave"
@@ -64,7 +56,7 @@
                     android:layout_height="32dp"
                     android:layout_alignParentEnd="true"
                     android:background="@null"
-                    android:contentDescription="Save"
+                    android:contentDescription="@string/save"
                     android:padding="6dp"
                     android:scaleType="centerInside"
                     android:src="@drawable/check_solid1"
@@ -97,30 +89,17 @@
                     android:layout_height="wrap_content" />
 
             <LinearLayout
-                    android:id="@+id/imageContainerDraw"
+                    android:id="@+id/drawingContainer"
                     android:orientation="vertical"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
-<!--            <TextView-->
-<!--                    android:id="@+id/audioPreview"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Phát lại ghi âm"-->
-<!--                    android:textColor="@color/black"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:visibility="gone"-->
-<!--                    android:background="?attr/selectableItemBackground"-->
-<!--                    android:clickable="true"-->
-<!--                    android:focusable="true"-->
-<!--                    app:layout_constraintTop_toBottomOf="@id/btnRecord"-->
-<!--                    app:layout_constraintStart_toStartOf="parent" />-->
             <LinearLayout
-                android:id="@+id/audioContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible" />
+                    android:id="@+id/audioContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible" />
 
             <Button
                     android:id="@+id/playButton"

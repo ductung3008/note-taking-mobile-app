@@ -154,11 +154,11 @@ public class HomeActivity extends AppCompatActivity implements NoteAdapter.OnNot
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Xóa ghi chú")
                     .setMessage("Bạn có chắc chắn muốn xóa ghi chú này không?")
-                    .setPositiveButton("Có", (dialog, which) -> {
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
                         viewModel.softDelete(selectedNote);
                         Toast.makeText(this, "Đã xóa ghi chú", Toast.LENGTH_SHORT).show();
                     })
-                    .setNegativeButton("Không", (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss())
                     .create()
                     .show();
             bottomSheetDialog.dismiss();

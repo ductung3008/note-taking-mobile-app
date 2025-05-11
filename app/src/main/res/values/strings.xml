@@ -40,4 +40,7 @@
     <string name="tv_default_sort_by">Theo ngày tạo</string>
     <string name="tv_default_layout">Xem theo danh sách</string>
     <string name="tv_default_theme">Sáng</string>
+    <string name="save">Lưu</string>
+    <string name="fab_color_picker">Chọn màu</string>
+    <string name="fab_undo">Hoàn tác</string>
 </resources>
