@@ -46,13 +46,16 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.haui.notetakingapp.R;
+import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.viewmodel.EditNoteViewModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class EditNoteActivity extends AppCompatActivity {
@@ -62,15 +65,18 @@ public class EditNoteActivity extends AppCompatActivity {
     private Button playButton;
     private EditText editTitle, edtContent;
     private ImageButton btnChecklist, btnSave, btnImage, btnRecord;
-    private LinearLayout imageContainer, checklistContainer;
+    private LinearLayout imageContainer, checklistContainer, audioContainer;
     private Uri imageUri;
     private ActivityResultLauncher<Uri> takePictureLauncher;
+    private List<Uri> recordedAudioPaths = new ArrayList<>();
     private ActivityResultLauncher<String[]> pickImageLauncher;
     private MediaRecorder mediaRecorder;
     private MediaPlayer mediaPlayer;
     private boolean isRecording = false;
-    private String audioPath;
+    private String audioFilePath;
     private EditNoteViewModel viewModel;
+    private List<String> existingAudioPaths = new ArrayList<>(); // Paths from the original note
+    private List<String> newAudioPaths = new ArrayList<>(); // Newly recorded paths in this edit session
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +105,7 @@ public class EditNoteActivity extends AppCompatActivity {
         myMapping();
         myDisplay();
         setupImagePickers();
-        audioPath = null;
+        audioFilePath = null;
         setupButtonActions();
     }
 
@@ -121,8 +127,7 @@ public class EditNoteActivity extends AppCompatActivity {
     }
 
     private void myMapping() {
-        audioPreview = findViewById(R.id.audioPreview);
-        imageContainer = findViewById(R.id.imageContainer);
+//        audioPreview = findViewById(R.id.audioPreview);
         playButton = findViewById(R.id.playButton);
         editTitle = findViewById(R.id.editTitle);
         edtContent = findViewById(R.id.edtContent);
@@ -131,6 +136,11 @@ public class EditNoteActivity extends AppCompatActivity {
         btnImage = findViewById(R.id.btnImage);
         btnRecord = findViewById(R.id.btnRecord);
         checklistContainer = findViewById(R.id.checklistContainer);
+        imageContainer = findViewById(R.id.imageContainer);
+//        imageContainerDraw = findViewById(R.id.imageContainerDraw);
+//        arrowLeft = findViewById(R.id.arrow_left);
+//        btnDraw = findViewById(R.id.btnDraw);
+        audioContainer = findViewById(R.id.audioContainer);
     }
 
     private void setupButtonActions() {
@@ -173,6 +183,7 @@ public class EditNoteActivity extends AppCompatActivity {
                 });
     }
 
+
     private void myDisplay() {
         Note note = (Note) getIntent().getSerializableExtra("noteToEdit");
 
@@ -184,27 +195,91 @@ public class EditNoteActivity extends AppCompatActivity {
             editTitle.setText(note.getTitle());
             edtContent.setText(note.getContent());
 
+            // Handle images if they exist
             if (note.getImagePaths() != null && !note.getImagePaths().isEmpty()) {
-                for (String imageUri : note.getImagePaths()) {
-                    addImageToView(Uri.parse(imageUri));
+                for (String imagePath : note.getImagePaths()) {
+                    addImageToView(Uri.parse(imagePath));
                 }
-
-                viewModel.addImagePath(imageUri);
             }
 
             // Handle audio if exists
             if (note.getAudioPaths() != null && !note.getAudioPaths().isEmpty()) {
-                audioPath = note.getAudioPaths().get(0);
-                viewModel.addAudioPath(audioPath);
+                // Store existing audio paths
+                existingAudioPaths.addAll(note.getAudioPaths());
 
-                // Show audio controls if audio exists
-                audioPreview.setVisibility(View.VISIBLE);
-                playButton.setVisibility(View.VISIBLE);
-                playButton.setText(new File(audioPath).getName());
+                // Display each audio item in UI
+                for (String audioPath : note.getAudioPaths()) {
+                    addAudioItemToUI(audioPath);
+                }
+            }
+
+            // Handle checklist items if they exist
+            if (note.getChecklistItems() != null && !note.getChecklistItems().isEmpty()) {
+                for (CheckListItem item : note.getChecklistItems()) {
+                    addExistingChecklistItem(item.getText(), item.isChecked());
+                }
             }
         }
     }
+    // Add this method to handle existing checklist items
+    private void addExistingChecklistItem(String text, boolean isChecked) {
+        // Create layout ngang chứa checkbox và EditText
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
 
+        // Tạo checkbox
+        CheckBox checkBox = new CheckBox(this);
+        checkBox.setId(View.generateViewId());
+        checkBox.setChecked(isChecked); // Set the checked state
+
+        // Tạo EditText
+        EditText editText = new EditText(this);
+        editText.setText(text); // Set the existing text
+        editText.setBackground(null);
+        editText.setTextColor(getResources().getColor(R.color.black));
+        editText.setTextSize(16);
+        editText.setLayoutParams(new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1));
+        editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        editText.setSingleLine(true);
+
+        // Xử lý nhấn Enter để thêm checklist mới
+        editText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                addChecklistItem();
+                return true;
+            }
+            return false;
+        });
+
+        // Xử lý nhấn phím xóa (Backspace) khi ô đang trống
+        editText.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL && editText.getText().toString().isEmpty()) {
+                // Xoá layout chứa checkbox + EditText khỏi container
+                checklistContainer.removeView(layout);
+                return true;
+            }
+            return false;
+        });
+
+        // Set listeners to track changes
+        checkBox.setOnCheckedChangeListener((buttonView, isCheckedNow) -> {
+            // Update your model or store the state change
+            // This depends on how you're tracking checklist changes
+        });
+
+        // Thêm checkbox và EditText vào layout
+        layout.addView(checkBox);
+        layout.addView(editText);
+
+        // Thêm layout vào checklistContainer
+        checklistContainer.addView(layout);
+    }
     private void setupImagePickers() {
         // Khởi tạo launcher chụp ảnh
         takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
@@ -261,7 +336,7 @@ public class EditNoteActivity extends AppCompatActivity {
     }
 
     private void playAudio() {
-        if (audioPath == null) {
+        if (audioFilePath == null) {
             Toast.makeText(this, "Không có file ghi âm để phát", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -274,7 +349,7 @@ public class EditNoteActivity extends AppCompatActivity {
         } else {
             mediaPlayer = new MediaPlayer();
             try {
-                mediaPlayer.setDataSource(audioPath);
+                mediaPlayer.setDataSource(audioFilePath);
                 mediaPlayer.prepare();
                 mediaPlayer.start();
                 Toast.makeText(this, "Đang phát...", Toast.LENGTH_SHORT).show();
@@ -317,18 +392,27 @@ public class EditNoteActivity extends AppCompatActivity {
 
     // Hàm ghi âm
     private void startRecording() {
+        if (isRecording) {
+            stopRecording();
+            return;
+        }
+
+        Toast.makeText(this, "Working", Toast.LENGTH_SHORT).show();
         File outputDir = getExternalFilesDir(Environment.DIRECTORY_MUSIC);
         if (outputDir != null) {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             File outputFile = new File(outputDir, "audio_note_" + timeStamp + ".3gp");
 
-            audioPath = outputFile.getAbsolutePath();
-            viewModel.addAudioPath(audioPath);
+            audioFilePath = outputFile.getAbsolutePath();
+
+            // Add the new path to our list (convert File path to Uri)
+            Uri audioUri = Uri.fromFile(outputFile);
+            recordedAudioPaths.add(audioUri);
 
             mediaRecorder = new MediaRecorder();
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mediaRecorder.setOutputFile(audioPath);
+            mediaRecorder.setOutputFile(audioFilePath);
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
             try {
@@ -336,9 +420,6 @@ public class EditNoteActivity extends AppCompatActivity {
                 mediaRecorder.start();
                 isRecording = true;
                 Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show();
-
-                Button playButton = findViewById(R.id.playButton);
-                playButton.setText(outputFile.getName());
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Không thể bắt đầu ghi âm", Toast.LENGTH_SHORT).show();
@@ -360,11 +441,93 @@ public class EditNoteActivity extends AppCompatActivity {
 
             Toast.makeText(this, "Ghi âm đã lưu", Toast.LENGTH_SHORT).show();
 
-            // Hiện giao diện phát lại
-            if (audioPreview != null) {
-                audioPreview.setVisibility(View.VISIBLE);
-                playButton.setVisibility(View.VISIBLE);
+            // Track the new recording path
+            if (audioFilePath != null) {
+                newAudioPaths.add(audioFilePath);
+
+                // Add the recording to the UI
+                addAudioItemToUI(audioFilePath);
             }
+        }
+    }
+
+
+    private void addAudioItemToUI(String audioPath) {
+        if (audioPath == null) return;
+
+        // Create a horizontal layout for each audio item
+        LinearLayout audioItemLayout = new LinearLayout(this);
+        audioItemLayout.setOrientation(LinearLayout.HORIZONTAL);
+        audioItemLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        audioItemLayout.setPadding(8, 8, 8, 8);
+
+        // Create a text view to show the file name
+        TextView audioFileName = new TextView(this);
+        File audioFile = new File(audioPath);
+        audioFileName.setText(audioFile.getName());
+        audioFileName.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
+        // Create a play button for this audio item
+        Button playAudioButton = new Button(this);
+        playAudioButton.setText("Play");
+        playAudioButton.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        // Set an ID for the path to be used in the click listener
+        playAudioButton.setTag(audioPath);
+
+        // Set click listener for playing this specific audio
+        playAudioButton.setOnClickListener(v -> {
+            String path = (String) v.getTag();
+            playSpecificAudio(path);
+        });
+
+        // Add views to the layout
+        audioItemLayout.addView(audioFileName);
+        audioItemLayout.addView(playAudioButton);
+
+        // Add the layout to the audio container
+        audioContainer.addView(audioItemLayout);
+
+        // Make the container visible if it was hidden
+        audioContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void playSpecificAudio(String audioPath) {
+        if (audioPath == null) {
+            Toast.makeText(this, "Không có file ghi âm để phát", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Stop any currently playing audio
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        // Create and start a new media player
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(audioPath);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            Toast.makeText(this, "Đang phát...", Toast.LENGTH_SHORT).show();
+
+            mediaPlayer.setOnCompletionListener(mp -> {
+                mp.release();
+                mediaPlayer = null;
+                Toast.makeText(this, "Phát xong", Toast.LENGTH_SHORT).show();
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Không thể phát ghi âm", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -431,13 +594,61 @@ public class EditNoteActivity extends AppCompatActivity {
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
     }
 
+    private List<CheckListItem> getChecklistItemsFromUI() {
+        List<CheckListItem> checklistItems = new ArrayList<>();
+        for (int i = 0; i < checklistContainer.getChildCount(); i++) {
+            View itemLayout = checklistContainer.getChildAt(i);
+            if (itemLayout instanceof LinearLayout) {
+                LinearLayout layout = (LinearLayout) itemLayout;
+                CheckBox checkBox = null;
+                EditText editText = null;
+
+                for (int j = 0; j < layout.getChildCount(); j++) {
+                    View child = layout.getChildAt(j);
+                    if (child instanceof CheckBox) {
+                        checkBox = (CheckBox) child;
+                    } else if (child instanceof EditText) {
+                        editText = (EditText) child;
+                    }
+                }
+
+                if (editText != null && checkBox != null) {
+                    String text = editText.getText().toString().trim();
+                    boolean isChecked = checkBox.isChecked();
+                    if (!text.isEmpty()) {
+                        checklistItems.add(new CheckListItem(text, isChecked));
+                    }
+                }
+            }
+        }
+        return checklistItems;
+    }
+
     private void updateNote() {
-        String title = editTitle.getText().toString();
-        String content = edtContent.getText().toString();
+        String title = editTitle.getText().toString().trim();
+        String content = edtContent.getText().toString().trim();
 
         viewModel.setTitle(title);
         viewModel.setContent(content);
 
+        // Save checklist items from UI
+        viewModel.setChecklistItems(getChecklistItemsFromUI());
+
+        // Clear existing audio paths and set them correctly
+        viewModel.clearAudioPaths();
+
+        // Add all existing audio paths that weren't deleted
+        // (You'll need to track deletions if that's a feature)
+        for (String path : existingAudioPaths) {
+            viewModel.addAudioPath(path);
+        }
+
+        // Add all new audio paths
+        for (String path : newAudioPaths) {
+            viewModel.addAudioPath(path);
+        }
+
+        // Lưu ghi chú
         viewModel.updateNote();
     }
 }

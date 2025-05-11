@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.repository.NoteRepository;
 
@@ -28,6 +29,9 @@ public class EditNoteViewModel extends AndroidViewModel {
     private List<String> imagePaths = new ArrayList<>();
     private List<String> audioPaths = null;
     private List<String> drawingPaths = new ArrayList<>();
+
+    private MutableLiveData<List<CheckListItem>> checklistItems = new MutableLiveData<>(new ArrayList<>());
+
 
     public EditNoteViewModel(@NonNull Application application) {
         super(application);
@@ -75,11 +79,17 @@ public class EditNoteViewModel extends AndroidViewModel {
         }
     }
 
+    // Update the addAudioPath method for a single String path
     public void addAudioPath(String audioPath) {
-        if (audioPath != null) {
-            audioPaths.add(audioPath);
+        if (audioPath != null && !this.audioPaths.contains(audioPath)) {
+            this.audioPaths.add(audioPath);
         }
     }
+
+    public void clearAudioPaths() {
+        this.audioPaths.clear();
+    }
+
 
     public void setTitle(String title) {
         this.title = title;
@@ -99,6 +109,7 @@ public class EditNoteViewModel extends AndroidViewModel {
         currentNote.setContent(content);
         currentNote.setImagePaths(getSelectedImagePaths());
         currentNote.setAudioPaths(getRecordedAudioPaths());
+        currentNote.setChecklistItems(checklistItems.getValue());
         currentNote.setUpdatedAt(System.currentTimeMillis());
 
         noteRepository.update(currentNote);
@@ -126,7 +137,13 @@ public class EditNoteViewModel extends AndroidViewModel {
         }
         return recordedAudioPaths;
     }
-
+    public void addChecklistItem(CheckListItem item) {
+        List<CheckListItem> items = checklistItems.getValue();
+        if (items != null) {
+            items.add(item);
+            checklistItems.setValue(items);
+        }
+    }
     private List<String> getDrawImagePaths() {
         List<String> drawImagePaths = new ArrayList<>();
         for (String drawImagePath : drawingPaths) {
@@ -135,5 +152,9 @@ public class EditNoteViewModel extends AndroidViewModel {
             }
         }
         return drawImagePaths;
+    }
+
+    public void setChecklistItems(List<CheckListItem> items) {
+        checklistItems.setValue(items);
     }
 }
