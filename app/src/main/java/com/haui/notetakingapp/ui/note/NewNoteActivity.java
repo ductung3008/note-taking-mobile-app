@@ -66,9 +66,12 @@ public class NewNoteActivity extends AppCompatActivity {
     private Button playButton;
     private EditText editTitle, edtContent;
     private ImageButton btnChecklist, btnSave, btnImage, btnRecord, btnDraw;
-    private LinearLayout checklistContainer, imageContainer, imageContainerDraw;
+    private LinearLayout checklistContainer, imageContainer, imageContainerDraw, audioContainer;
+
     private Uri imageUri;
     private ActivityResultLauncher<Uri> takePictureLauncher;
+
+    private List<Uri> recordedAudioPaths = new ArrayList<>();
     private ActivityResultLauncher<String[]> pickImageLauncher;
     private ActivityResultLauncher<Intent> drawScreenLauncher;
     private MediaRecorder mediaRecorder;
@@ -77,6 +80,8 @@ public class NewNoteActivity extends AppCompatActivity {
     private String audioFilePath;
     // ViewModel reference
     private NewNoteViewModel viewModel;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +128,7 @@ public class NewNoteActivity extends AppCompatActivity {
     }
 
     private void myMapping() {
-        audioPreview = findViewById(R.id.audioPreview);
+//        audioPreview = findViewById(R.id.audioPreview);
         playButton = findViewById(R.id.playButton);
         editTitle = findViewById(R.id.editTitle);
         edtContent = findViewById(R.id.edtContent);
@@ -136,6 +141,7 @@ public class NewNoteActivity extends AppCompatActivity {
         imageContainerDraw = findViewById(R.id.imageContainerDraw);
         arrowLeft = findViewById(R.id.arrow_left);
         btnDraw = findViewById(R.id.btnDraw);
+        audioContainer = findViewById(R.id.audioContainer);
     }
 
     private void setupButtonActions() {
@@ -295,13 +301,22 @@ public class NewNoteActivity extends AppCompatActivity {
 
     // Hàm ghi âm
     private void startRecording() {
+        if (isRecording) {
+            stopRecording();
+            return;
+        }
+
+        Toast.makeText(this, "Working", Toast.LENGTH_SHORT).show();
         File outputDir = getExternalFilesDir(Environment.DIRECTORY_MUSIC);
         if (outputDir != null) {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             File outputFile = new File(outputDir, "audio_note_" + timeStamp + ".3gp");
 
             audioFilePath = outputFile.getAbsolutePath();
-            viewModel.addAudioPath(audioFilePath);
+
+            // Add the new path to our list (convert File path to Uri)
+            Uri audioUri = Uri.fromFile(outputFile);
+            recordedAudioPaths.add(audioUri);
 
             mediaRecorder = new MediaRecorder();
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -314,9 +329,6 @@ public class NewNoteActivity extends AppCompatActivity {
                 mediaRecorder.start();
                 isRecording = true;
                 Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show();
-
-                Button playButton = findViewById(R.id.playButton);
-                playButton.setText(outputFile.getName());
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Không thể bắt đầu ghi âm", Toast.LENGTH_SHORT).show();
@@ -338,11 +350,87 @@ public class NewNoteActivity extends AppCompatActivity {
 
             Toast.makeText(this, "Ghi âm đã lưu", Toast.LENGTH_SHORT).show();
 
-            // Hiện giao diện phát lại
-            if (audioPreview != null) {
-                audioPreview.setVisibility(View.VISIBLE);
-                playButton.setVisibility(View.VISIBLE);
+            // Add the recording to the UI
+            addAudioItemToUI(audioFilePath);
+        }
+    }
+
+    private void addAudioItemToUI(String audioPath) {
+        if (audioPath == null) return;
+
+        // Create a horizontal layout for each audio item
+        LinearLayout audioItemLayout = new LinearLayout(this);
+        audioItemLayout.setOrientation(LinearLayout.HORIZONTAL);
+        audioItemLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        audioItemLayout.setPadding(8, 8, 8, 8);
+
+        // Create a text view to show the file name
+        TextView audioFileName = new TextView(this);
+        File audioFile = new File(audioPath);
+        audioFileName.setText(audioFile.getName());
+        audioFileName.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
+        // Create a play button for this audio item
+        Button playAudioButton = new Button(this);
+        playAudioButton.setText("Play");
+        playAudioButton.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        // Set an ID for the path to be used in the click listener
+        playAudioButton.setTag(audioPath);
+
+        // Set click listener for playing this specific audio
+        playAudioButton.setOnClickListener(v -> {
+            String path = (String) v.getTag();
+            playSpecificAudio(path);
+        });
+
+        // Add views to the layout
+        audioItemLayout.addView(audioFileName);
+        audioItemLayout.addView(playAudioButton);
+
+        // Add the layout to the audio container
+        audioContainer.addView(audioItemLayout);
+
+        // Make the container visible if it was hidden
+        audioContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void playSpecificAudio(String audioPath) {
+        if (audioPath == null) {
+            Toast.makeText(this, "Không có file ghi âm để phát", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Stop any currently playing audio
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
             }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        // Create and start a new media player
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(audioPath);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            Toast.makeText(this, "Đang phát...", Toast.LENGTH_SHORT).show();
+
+            mediaPlayer.setOnCompletionListener(mp -> {
+                mp.release();
+                mediaPlayer = null;
+                Toast.makeText(this, "Phát xong", Toast.LENGTH_SHORT).show();
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Không thể phát ghi âm", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -452,8 +540,14 @@ public class NewNoteActivity extends AppCompatActivity {
 
         viewModel.setTitle(title);
         viewModel.setContent(content);
+
         viewModel.setChecklistItems(getChecklistItemsFromUI());
         viewModel.setDrawingPaths(getDrawImagesFromUI());
+
+        // Pass the accumulated audio paths list
+        if (!recordedAudioPaths.isEmpty()) {
+            viewModel.addAudioPath(recordedAudioPaths);
+        }
 
         // Lưu ghi chú
         viewModel.saveNote();

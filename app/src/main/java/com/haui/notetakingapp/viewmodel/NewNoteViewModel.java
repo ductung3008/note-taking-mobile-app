@@ -26,7 +26,7 @@ public class NewNoteViewModel extends AndroidViewModel {
     private String title = "";
     private String content = "";
     private List<String> imagePaths = new ArrayList<>();
-    private List<String> audioPaths = null;
+    private List<String> audioPaths = new ArrayList<>();
     private List<String> drawingPaths = new ArrayList<>();
     private MutableLiveData<List<CheckListItem>> checklistItems = new MutableLiveData<>(new ArrayList<>());
 
@@ -43,7 +43,9 @@ public class NewNoteViewModel extends AndroidViewModel {
     public void setContent(String content) {
         this.content = content;
     }
-
+    public void setChecklistItems(List<CheckListItem> items) {
+        checklistItems.setValue(items);
+    }
     public void addImagePath(Uri imageUri) {
         if (imageUri != null) {
             imagePaths.add(String.valueOf(imageUri));
@@ -64,13 +66,19 @@ public class NewNoteViewModel extends AndroidViewModel {
         }
     }
 
+    public void addAudioPath(List<Uri> audioPaths) {
+        for (Uri audioPath : audioPaths) {
+            if (audioPath != null) {
+                this.audioPaths.add(String.valueOf(audioPath));
+            }
+        }
+    }
+
     public LiveData<List<CheckListItem>> getChecklistItems() {
         return checklistItems;
     }
 
-    public void setChecklistItems(List<CheckListItem> items) {
-        checklistItems.setValue(items);
-    }
+
 
     public void addChecklistItem(CheckListItem item) {
         List<CheckListItem> items = checklistItems.getValue();
