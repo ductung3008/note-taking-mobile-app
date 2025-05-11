@@ -61,7 +61,6 @@ import java.util.Locale;
 public class EditNoteActivity extends AppCompatActivity {
     private static final int REQUEST_RECORD_AUDIO = 102;
     private final int checklistCount = 0;
-    private ImageView imageView;
     private TextView audioPreview;
     private Button playButton;
     private EditText editTitle, edtContent;

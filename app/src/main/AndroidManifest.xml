@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
             android:allowBackup="true"
@@ -36,7 +38,7 @@
                 android:name=".ui.auth.LoginActivity"
                 android:exported="false" />
         <activity
-                android:name=".ui.setting.Setting"
+                android:name=".ui.setting.SettingActivity"
                 android:exported="false" />
         <activity
                 android:name=".ui.note.DrawActivity"

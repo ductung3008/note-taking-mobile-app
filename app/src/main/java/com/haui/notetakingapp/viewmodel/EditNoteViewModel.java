@@ -2,7 +2,6 @@ package com.haui.notetakingapp.viewmodel;
 
 import android.app.Application;
 import android.net.Uri;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -13,7 +12,6 @@ import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.repository.NoteRepository;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

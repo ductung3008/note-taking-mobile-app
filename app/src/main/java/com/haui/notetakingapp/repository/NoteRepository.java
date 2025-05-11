@@ -45,11 +45,9 @@ public class NoteRepository {
     // Phương thức "xóa mềm" ghi chú (chuyển vào thùng rác)
     public void moveToTrash(Note note) {
         executorService.execute(() -> {
-            note.setDeleted(true); // Đánh dấu là đã xóa
-            // Cập nhật thời gian xóa nếu bạn có thuộc tính đó, ở đây dùng lại updatedAt
+            note.setDeleted(true);
             note.setUpdatedAt(System.currentTimeMillis());
-            noteDao.updateNote(note); // Cập nhật trạng thái trong database
-            // Lưu ý: Không xóa tệp đính kèm ở đây, chỉ xóa vĩnh viễn mới xóa tệp
+            noteDao.updateNote(note);
         });
     }
 

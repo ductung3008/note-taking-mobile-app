@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -37,6 +38,14 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
+
+    // Circle ImageView for profile picture
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
     // Room components
     implementation("androidx.room:room-runtime:2.7.1")
     annotationProcessor("androidx.room:room-compiler:2.7.1")
@@ -57,11 +66,8 @@ dependencies {
     implementation("com.github.kristiyanP:colorpicker:v1.1.10")
     implementation("com.google.android.material:material:1.1.0")
 
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
-
 }
