@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="horizontal"
         android:padding="16dp">
 
@@ -11,7 +11,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Ghim/Bỏ ghim"
+            android:text="@string/tv_pin_unpin"
             android:gravity="center"
             android:padding="12dp"
             android:textSize="14sp"
@@ -24,22 +24,22 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Xóa"
+            android:text="@string/tv_delete"
             android:gravity="center"
             android:padding="12dp"
             android:textSize="14sp"
             app:drawableTopCompat="@drawable/ic_trash_can"
-            android:drawablePadding="8dp"/>
+            android:drawablePadding="8dp" />
 
     <TextView
             android:id="@+id/optionShare"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Chia sẻ"
+            android:text="@string/tv_share"
             android:gravity="center"
             android:padding="12dp"
             android:textSize="14sp"
             app:drawableTopCompat="@drawable/ic_share"
-            android:drawablePadding="8dp"/>
+            android:drawablePadding="8dp" />
 </LinearLayout>

@@ -4,12 +4,9 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="android:fontFamily">@font/misans</item>
-
-
-
+        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button</item>
+        <item name="android:usesCleartextTraffic">true</item>
     </style>
 
     <style name="Theme.NoteTakingApp" parent="Base.Theme.NoteTakingApp" />
-
-
 </resources>

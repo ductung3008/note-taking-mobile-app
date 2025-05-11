@@ -199,6 +199,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     // Định nghĩa Interface Listener
     public interface OnNoteListener {
         void onClick(int position);
+
         boolean onLongClick(int position);
     }
 
