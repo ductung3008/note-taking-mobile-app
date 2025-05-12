@@ -1,5 +1,6 @@
 package com.haui.notetakingapp.ui.note;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -90,15 +91,15 @@ public class DeletedNoteActivity extends AppCompatActivity implements NoteAdapte
         Toast.makeText(this, "Nhấn giữ nút này để xóa tất cả ghi chú đã xóa", Toast.LENGTH_SHORT).show();
 
         // Hoặc triển khai dialog xác nhận chi tiết hơn
-        // new AlertDialog.Builder(this)
-        //     .setTitle("Xóa tất cả ghi chú đã xóa?")
-        //     .setMessage("Bạn có chắc chắn muốn xóa vĩnh viễn tất cả ghi chú trong thùng rác không? Hành động này không thể hoàn tác.")
-        //     .setPositiveButton("Xóa tất cả", (dialog, which) -> {
-        //         viewModel.emptyTrash(); // Gọi phương thức xóa tất cả từ ViewModel
-        //     })
-        //     .setNegativeButton("Hủy", null)
-        //     .setIcon(android.R.drawable.ic_dialog_alert)
-        //     .show();
+         new AlertDialog.Builder(this)
+             .setTitle("Xóa tất cả ghi chú đã xóa?")
+             .setMessage("Bạn có chắc chắn muốn xóa vĩnh viễn tất cả ghi chú trong thùng rác không? Hành động này không thể hoàn tác.")
+             .setPositiveButton("Xóa tất cả", (dialog, which) -> {
+                 viewModel.emptyTrash(); // Gọi phương thức xóa tất cả từ ViewModel
+             })
+             .setNegativeButton("Hủy", null)
+             .setIcon(android.R.drawable.ic_dialog_alert)
+             .show();
     }
 
 
