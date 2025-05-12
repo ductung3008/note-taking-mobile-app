@@ -1,49 +1,21 @@
 package com.haui.notetakingapp.viewmodel;
 
 import android.app.Application;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.data.local.entity.Note;
-import com.haui.notetakingapp.repository.NoteRepository;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class EditNoteViewModel extends AndroidViewModel {
-    private final NoteRepository noteRepository;
-
-    private final MutableLiveData<Boolean> _saveSuccess = new MutableLiveData<>();
-    private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
-    public LiveData<Boolean> saveSuccess = _saveSuccess;
-    public LiveData<String> errorMessage = _errorMessage;
-
+public class EditNoteViewModel extends BaseNoteViewModel {
     private Note currentNote;
-    private String title = "";
-    private String content = "";
-    private List<String> imagePaths = new ArrayList<>();
-    private List<String> audioPaths = null;
-    private List<String> drawingPaths = new ArrayList<>();
-
-    private MutableLiveData<List<CheckListItem>> checklistItems = new MutableLiveData<>(new ArrayList<>());
-
 
     public EditNoteViewModel(@NonNull Application application) {
         super(application);
-        noteRepository = new NoteRepository(application);
     }
 
     public Note getCurrentNote() {
-        title = currentNote.getTitle();
-        content = currentNote.getContent();
-        imagePaths = new ArrayList<>(currentNote.getImagePaths());
-        audioPaths = new ArrayList<>(currentNote.getAudioPaths());
-        drawingPaths = new ArrayList<>(currentNote.getDrawingPaths());
         return currentNote;
     }
 
@@ -63,45 +35,24 @@ public class EditNoteViewModel extends AndroidViewModel {
         if (note.getDrawingPaths() != null) {
             this.drawingPaths = new ArrayList<>(note.getDrawingPaths());
         }
-    }
 
-    public void addImagePath(Uri imageUri) {
-        if (imageUri != null) {
-            imagePaths.add(String.valueOf(imageUri));
+        if (note.getChecklistItems() != null) {
+            setChecklistItems(note.getChecklistItems());
         }
-    }
-
-    public void addImagePaths(List<Uri> imageUris) {
-        for (Uri imageUri : imageUris) {
-            if (imageUri != null) {
-                imagePaths.add(String.valueOf(imageUri));
-            }
-        }
-    }
-
-    // Update the addAudioPath method for a single String path
-    public void addAudioPath(String audioPath) {
-        if (audioPath != null && !this.audioPaths.contains(audioPath)) {
-            this.audioPaths.add(audioPath);
-        }
-    }
-
-    public void clearAudioPaths() {
-        this.audioPaths.clear();
-    }
-
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public void updateNote() {
-        if (title.trim().isEmpty() || content.trim().isEmpty()) {
-            _errorMessage.setValue("Vui lòng nhập đầy đủ tiêu đề và nội dung");
+        saveNote();
+    }
+
+    @Override
+    public void saveNote() {
+        if (!validateInput()) {
+            return;
+        }
+
+        if (currentNote == null) {
+            _errorMessage.setValue("No note to update");
             return;
         }
 
@@ -109,52 +60,11 @@ public class EditNoteViewModel extends AndroidViewModel {
         currentNote.setContent(content);
         currentNote.setImagePaths(getSelectedImagePaths());
         currentNote.setAudioPaths(getRecordedAudioPaths());
+        currentNote.setDrawingPaths(getDrewPaths());
         currentNote.setChecklistItems(checklistItems.getValue());
         currentNote.setUpdatedAt(System.currentTimeMillis());
 
         noteRepository.update(currentNote);
         _saveSuccess.setValue(true);
-    }
-
-    private List<String> getSelectedImagePaths() {
-        List<String> selectedImagePaths = new ArrayList<>();
-        for (String imagePath : imagePaths) {
-            if (imagePath != null) {
-                selectedImagePaths.add(imagePath);
-            }
-        }
-        return selectedImagePaths;
-    }
-
-    private List<String> getRecordedAudioPaths() {
-        List<String> recordedAudioPaths = new ArrayList<>();
-        if (audioPaths != null) {
-            for (String audioPath : audioPaths) {
-                if (audioPath != null) {
-                    recordedAudioPaths.add(audioPath);
-                }
-            }
-        }
-        return recordedAudioPaths;
-    }
-    public void addChecklistItem(CheckListItem item) {
-        List<CheckListItem> items = checklistItems.getValue();
-        if (items != null) {
-            items.add(item);
-            checklistItems.setValue(items);
-        }
-    }
-    private List<String> getDrawImagePaths() {
-        List<String> drawImagePaths = new ArrayList<>();
-        for (String drawImagePath : drawingPaths) {
-            if (drawImagePath != null) {
-                drawImagePaths.add(drawImagePath);
-            }
-        }
-        return drawImagePaths;
-    }
-
-    public void setChecklistItems(List<CheckListItem> items) {
-        checklistItems.setValue(items);
     }
 }
