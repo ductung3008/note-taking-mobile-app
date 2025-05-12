@@ -2,9 +2,11 @@ package com.haui.notetakingapp.ui.note;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -16,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.ui.home.NoteAdapter;
@@ -55,16 +58,10 @@ public class DeletedNoteActivity extends AppCompatActivity implements NoteAdapte
     }
 
     private void setupRecyclerView() {
-        deletedNoteAdapter = new NoteAdapter(new ArrayList<>()); // Khởi tạo adapter với danh sách trống
-        // Nếu bạn tạo adapter riêng cho thùng rác, sử dụng adapter đó ở đây
-        // deletedNoteAdapter = new DeletedNoteAdapter(new ArrayList<>(), this); // Truyền listener
+        deletedNoteAdapter = new NoteAdapter(new ArrayList<>(), this);
 
-        rvDeletedNotes.setLayoutManager(new LinearLayoutManager(this)); // Sử dụng LinearLayoutManager như trong ảnh
+        rvDeletedNotes.setLayoutManager(new LinearLayoutManager(this));
         rvDeletedNotes.setAdapter(deletedNoteAdapter);
-
-        // Nếu NoteAdapter hiện tại không hỗ trợ click listener, bạn cần thêm vào hoặc tạo adapter mới
-        // và thiết lập listener ở đây. Ví dụ:
-        // deletedNoteAdapter.setOnNoteListener(this); // Nếu adapter có phương thức này
     }
 
     private void setupViewModel() {
@@ -106,38 +103,56 @@ public class DeletedNoteActivity extends AppCompatActivity implements NoteAdapte
     // Xử lý khi click vào một mục ghi chú trong thùng rác
     @Override
     public void onClick(int position) {
-        // TODO: Xử lý khi click vào ghi chú trong thùng rác.
-        // Có thể hiển thị một menu ngữ cảnh (PopupMenu) với các tùy chọn
-        // "Khôi phục" và "Xóa vĩnh viễn".
+        // Ví dụ: Mở ghi chú để xem chi tiết (chỉ đọc)
         Note clickedNote = deletedNoteAdapter.getNotes().get(position);
-        showNoteOptionsPopup(clickedNote, position);
+        // Intent intent = new Intent(this, ViewDeletedNoteActivity.class); // Cần tạo ViewDeletedNoteActivity
+        // intent.putExtra("note", clickedNote);
+        // startActivity(intent);
+        Toast.makeText(this, "Clicked: " + clickedNote.getTitle(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public boolean onLongClick(int position) {
-        return false;
+
+        Note selectedNote = deletedNoteAdapter.getNotes().get(position);
+        showDeletedNoteOptionsBottomSheet(selectedNote);
+        return true;
     }
 
     // Phương thức hiển thị PopupMenu cho ghi chú đã xóa
-    private void showNoteOptionsPopup(Note note, int position) {
-        View view = rvDeletedNotes.findViewHolderForAdapterPosition(position).itemView; // Lấy view của item đó
-        PopupMenu popup = new PopupMenu(this, view);
-        popup.getMenuInflater().inflate(R.menu.menu_deleted_note_options, popup.getMenu()); // Cần tạo file menu này
+    private void showDeletedNoteOptionsBottomSheet(Note note) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View bottomSheetView = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_deleted_note_options, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
 
-        popup.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.action_restore) { // ID cho tùy chọn khôi phục
-                viewModel.restoreNote(note);
-                Toast.makeText(this, "Đã khôi phục ghi chú", Toast.LENGTH_SHORT).show();
-                return true;
-            } else if (itemId == R.id.action_permanently_delete) { // ID cho tùy chọn xóa vĩnh viễn
-                viewModel.permanentlyDeleteNote(note);
-                Toast.makeText(this, "Đã xóa vĩnh viễn ghi chú", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-            return false;
+        // Ánh xạ các tùy chọn từ layout mới
+        TextView optionRestore = bottomSheetView.findViewById(R.id.optionRestore);
+        TextView optionPermanentlyDelete = bottomSheetView.findViewById(R.id.optionPermanentlyDelete);
+
+        // Thiết lập listener cho tùy chọn "Khôi phục"
+        optionRestore.setOnClickListener(v -> {
+            viewModel.restoreNote(note);
+            Toast.makeText(this, "Đã khôi phục ghi chú: " + note.getTitle(), Toast.LENGTH_SHORT).show();
+            bottomSheetDialog.dismiss();
         });
-        popup.show();
+
+        // Thiết lập listener cho tùy chọn "Xóa vĩnh viễn"
+        optionPermanentlyDelete.setOnClickListener(v -> {
+            // Hiển thị dialog xác nhận trước khi xóa vĩnh viễn
+            new AlertDialog.Builder(this)
+                    .setTitle("Xóa vĩnh viễn ghi chú?")
+                    .setMessage("Bạn có chắc chắn muốn xóa vĩnh viễn ghi chú '" + note.getTitle() + "' không? Hành động này không thể hoàn tác.")
+                    .setPositiveButton("Xóa vĩnh viễn", (dialog, which) -> {
+                        viewModel.permanentlyDeleteNote(note);
+                        Toast.makeText(this, "Đã xóa vĩnh viễn ghi chú", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+            bottomSheetDialog.dismiss(); // Đóng bottom sheet sau khi hiển thị dialog xác nhận
+        });
+
+        bottomSheetDialog.show();
     }
 
 
