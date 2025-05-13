@@ -58,7 +58,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * BaseNoteActivity là lớp trừu tượng chứa các chức năng và UI chung 
+ * BaseNoteActivity là lớp trừu tượng chứa các chức năng và UI chung
  * cho cả NewNoteActivity và EditNoteActivity
  */
 public abstract class BaseNoteActivity extends BaseActivity {
@@ -169,10 +169,10 @@ public abstract class BaseNoteActivity extends BaseActivity {
     protected void openCamera() {
         try {
             File photoFile = new File(getExternalFilesDir(null), "note_photo_" + System.currentTimeMillis() + ".jpg");
-            imageUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", photoFile);
+            imageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
             takePictureLauncher.launch(imageUri);
         } catch (Exception e) {
-            Toast.makeText(this, "Lỗi khi mở camera", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Lỗi khi mở camera: ", Toast.LENGTH_SHORT).show();
         }
     }
 
