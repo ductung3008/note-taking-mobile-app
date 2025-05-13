@@ -40,4 +40,8 @@ public interface NoteDao {
     // !!! Đảm bảo phương thức này tồn tại và đúng chính tả !!!
     @Query("SELECT * FROM notes WHERE isDeleted = 1")
     List<Note> getDeletedNotesSync(); // <-- Phương thức bị lỗi
+
+    @Query("SELECT * FROM notes")
+    List<Note> getAllNotesSync();
+
 }

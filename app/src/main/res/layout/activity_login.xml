@@ -170,6 +170,7 @@
 
         <!-- Google Button -->
         <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGoogleSignIn"
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
