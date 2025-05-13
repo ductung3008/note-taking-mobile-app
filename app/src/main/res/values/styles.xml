@@ -30,6 +30,7 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textFontWeight" tools:ignore="NewApi">600</item>
         <item name="android:gravity">center_vertical</item>
+        <item name="android:drawableTint">@color/color_icon</item>
     </style>
 
     <style name="SettingSelectedOption">
@@ -54,9 +55,9 @@
     </style>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_park</item>
+        <item name="colorAccent">@color/color_accent</item>
     </style>
 
 

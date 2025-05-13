@@ -14,17 +14,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.haui.notetakingapp.R;
+import com.haui.notetakingapp.ui.base.BaseActivity;
 import com.haui.notetakingapp.ui.home.HomeActivity;
 import com.haui.notetakingapp.viewmodel.LoginViewModel;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
     private EditText etEmail, etPassword;
     private CheckBox cbRemember;
     private Button btnSignIn;

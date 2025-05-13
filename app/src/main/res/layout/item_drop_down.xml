@@ -11,14 +11,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@android:color/black"
             android:textSize="16sp" />
 
     <ImageView
             android:id="@+id/icon_check"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_check"
+            android:src="@drawable/ic_check_solid"
             app:tint="@color/setting_drop_down_item_selected_text"
             android:visibility="gone" />
 </LinearLayout>

@@ -16,7 +16,7 @@
             android:padding="12dp"
             android:textSize="14sp"
             app:drawableTopCompat="@drawable/ic_keep"
-            app:drawableTint="@color/black"
+            app:drawableTint="@color/color_icon"
             android:drawablePadding="8dp" />
 
     <TextView
@@ -29,6 +29,7 @@
             android:padding="12dp"
             android:textSize="14sp"
             app:drawableTopCompat="@drawable/ic_trash_can"
+            app:drawableTint="@color/color_icon"
             android:drawablePadding="8dp" />
 
     <TextView
@@ -41,5 +42,6 @@
             android:padding="12dp"
             android:textSize="14sp"
             app:drawableTopCompat="@drawable/ic_share"
+            app:drawableTint="@color/color_icon"
             android:drawablePadding="8dp" />
 </LinearLayout>

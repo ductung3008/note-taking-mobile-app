@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -27,18 +26,19 @@ import com.google.firebase.auth.FirebaseUser;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.ui.auth.LoginActivity;
 import com.haui.notetakingapp.ui.auth.RegisterActivity;
-import com.haui.notetakingapp.viewmodel.SettingsViewModel;
+import com.haui.notetakingapp.ui.base.BaseActivity;
+import com.haui.notetakingapp.ui.home.HomeActivity;
+import com.haui.notetakingapp.viewmodel.SettingViewModel;
 
+import java.util.Arrays;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
-public class SettingActivity extends AppCompatActivity {
+public class SettingActivity extends BaseActivity {
     private ImageButton btnBack;
     private LinearLayout textSizeRow, sortByRow, layoutRow, themeRow, githubRow, loginRow, registerRow;
     private TextView textSelectedTextSize, textSelectedSortBy, textSelectedLayout, textSelectedTheme;
-    private SettingsViewModel viewModel;
-
+    private List<String> textSizeOptions, sortByOptions, layoutOptions, themeOptions;
+    private SettingViewModel viewModel;
     private PopupWindow popupWindow;
 
     @Override
@@ -52,9 +52,13 @@ public class SettingActivity extends AppCompatActivity {
             return insets;
         });
 
-        viewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        textSizeOptions = Arrays.asList(getResources().getStringArray(R.array.text_size_options));
+        sortByOptions = Arrays.asList(getResources().getStringArray(R.array.sort_by_options));
+        layoutOptions = Arrays.asList(getResources().getStringArray(R.array.layout_options));
+        themeOptions = Arrays.asList(getResources().getStringArray(R.array.theme_options));
+
+        viewModel = new ViewModelProvider(this).get(SettingViewModel.class);
         bindView();
-        setupDropdown();
         setupClickListeners();
         observeViewModel();
     }
@@ -63,6 +67,21 @@ public class SettingActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         viewModel.refreshUserState();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
+    }
+
+    private void restartApp() {
+        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     private void bindView() {
@@ -84,6 +103,26 @@ public class SettingActivity extends AppCompatActivity {
 
     private void observeViewModel() {
         viewModel.currentUser.observe(this, this::updateUIBasedOnAuthState);
+
+        viewModel.settingsState.observe(this, state -> {
+            if (state != null) {
+                textSelectedTextSize.setText(state.getTextSize());
+                textSelectedSortBy.setText(state.getSortBy());
+                textSelectedLayout.setText(state.getLayout());
+                textSelectedTheme.setText(state.getTheme());
+            }
+        });
+
+        viewModel.textSize.observe(this, textSize -> textSelectedTextSize.setText(textSize));
+        viewModel.sortBy.observe(this, sortBy -> textSelectedSortBy.setText(sortBy));
+        viewModel.layout.observe(this, layout -> textSelectedLayout.setText(layout));
+        viewModel.theme.observe(this, theme -> textSelectedTheme.setText(theme));
+
+        viewModel.needsRestart.observe(this, needsRestart -> {
+            if (needsRestart) {
+                restartApp();
+            }
+        });
     }
 
     private void setupClickListeners() {
@@ -94,6 +133,11 @@ public class SettingActivity extends AppCompatActivity {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
+
+        textSizeRow.setOnClickListener(this::showTextSizeDropdown);
+        sortByRow.setOnClickListener(this::showSortByDropdown);
+        layoutRow.setOnClickListener(this::showLayoutDropdown);
+        themeRow.setOnClickListener(this::showThemeDropdown);
     }
 
     private void updateUIBasedOnAuthState(FirebaseUser currentUser) {
@@ -108,7 +152,7 @@ public class SettingActivity extends AppCompatActivity {
 
             TextView profileName = userProfileView.findViewById(R.id.profile_name);
             TextView profileEmail = userProfileView.findViewById(R.id.profile_email);
-            CircleImageView profileImage = userProfileView.findViewById(R.id.profile_image);
+            ImageView profileImage = userProfileView.findViewById(R.id.profile_image);
 
             profileName.setText(currentUser.getDisplayName() != null ?
                     currentUser.getDisplayName() : getString(R.string.default_username));
@@ -179,29 +223,75 @@ public class SettingActivity extends AppCompatActivity {
         }
     }
 
-    private void setupDropdown() {
-        textSizeRow.setOnClickListener(v -> {
-            List<String> textSizeOptions = List.of(getResources().getStringArray(R.array.text_size_options));
-            showDropdown(v, textSizeOptions, textSizeOptions.indexOf(textSelectedTextSize.getText().toString()), textSelectedTextSize);
-        });
+    private void showTextSizeDropdown(View anchor) {
+        String currentTextSize = viewModel.settingsState.getValue() != null ?
+                viewModel.settingsState.getValue().getTextSize() : viewModel.getInitialTextSize();
+        int selectedIndex = textSizeOptions.indexOf(currentTextSize);
 
-        sortByRow.setOnClickListener(v -> {
-            List<String> sortByOptions = List.of(getResources().getStringArray(R.array.sort_by_options));
-            showDropdown(v, sortByOptions, sortByOptions.indexOf(textSelectedSortBy.getText().toString()), textSelectedSortBy);
-        });
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
 
-        layoutRow.setOnClickListener(v -> {
-            List<String> layoutOptions = List.of(getResources().getStringArray(R.array.layout_options));
-            showDropdown(v, layoutOptions, layoutOptions.indexOf(textSelectedLayout.getText().toString()), textSelectedLayout);
-        });
-
-        themeRow.setOnClickListener(v -> {
-            List<String> themeOptions = List.of(getResources().getStringArray(R.array.theme_options));
-            showDropdown(v, themeOptions, themeOptions.indexOf(textSelectedTheme.getText().toString()), textSelectedTheme);
-        });
+        popupWindow = showDropdown(anchor, textSizeOptions, selectedIndex, this::onTextSizeSelected);
     }
 
-    private void showDropdown(View anchor, List<String> options, int selectedIndex, TextView targetTextView) {
+    private void showSortByDropdown(View anchor) {
+        String currentSortBy = viewModel.settingsState.getValue() != null ?
+                viewModel.settingsState.getValue().getSortBy() : "";
+        int selectedIndex = sortByOptions.indexOf(currentSortBy);
+
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
+
+        popupWindow = showDropdown(anchor, sortByOptions, selectedIndex, this::onSortBySelected);
+    }
+
+    private void showLayoutDropdown(View anchor) {
+        String currentLayout = viewModel.settingsState.getValue() != null ?
+                viewModel.settingsState.getValue().getLayout() : "";
+        int selectedIndex = layoutOptions.indexOf(currentLayout);
+
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
+
+        popupWindow = showDropdown(anchor, layoutOptions, selectedIndex, this::onLayoutSelected);
+    }
+
+    private void showThemeDropdown(View anchor) {
+        String currentTheme = viewModel.settingsState.getValue() != null ?
+                viewModel.settingsState.getValue().getTheme() : viewModel.getInitialTheme();
+        int selectedIndex = themeOptions.indexOf(currentTheme);
+
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
+
+        popupWindow = showDropdown(anchor, themeOptions, selectedIndex, this::onThemeSelected);
+    }
+
+    private void onTextSizeSelected(String textSize) {
+        viewModel.saveTextSizeSetting(textSize);
+        Toast.makeText(this, "Cỡ chữ đã chuyển sang " + textSize, Toast.LENGTH_SHORT).show();
+    }
+
+    private void onSortBySelected(String sortBy) {
+        viewModel.saveSortBySetting(sortBy);
+        Toast.makeText(this, "Sắp xếp đã chuyển sang " + sortBy, Toast.LENGTH_SHORT).show();
+    }
+
+    private void onLayoutSelected(String layout) {
+        viewModel.saveLayoutSetting(layout);
+        Toast.makeText(this, "Chế độ xem đã chuyển sang " + layout, Toast.LENGTH_SHORT).show();
+    }
+
+    private void onThemeSelected(String theme) {
+        viewModel.saveThemeSetting(theme);
+        Toast.makeText(this, "Chủ đề đã chuyển sang " + theme, Toast.LENGTH_SHORT).show();
+    }
+
+    private PopupWindow showDropdown(View anchor, List<String> options, int selectedIndex, OnItemClickListener listener) {
         LayoutInflater inflater = LayoutInflater.from(this);
         LinearLayout dropdownLayout = new LinearLayout(this);
         dropdownLayout.setOrientation(LinearLayout.VERTICAL);
@@ -228,8 +318,10 @@ public class SettingActivity extends AppCompatActivity {
 
             int finalSelectedIndex = i;
             item.setOnClickListener(v -> {
-                targetTextView.setText(options.get(finalSelectedIndex));
-                popupWindow.dismiss();
+                String selectedOption = options.get(finalSelectedIndex);
+                if (listener != null) {
+                    listener.onItemClick(selectedOption);
+                }
             });
 
             dropdownLayout.addView(item);
@@ -240,5 +332,10 @@ public class SettingActivity extends AppCompatActivity {
         popupWindow = new PopupWindow(dropdownLayout, popupWidth, WindowManager.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setElevation(10);
         popupWindow.showAsDropDown(anchor, xOffset, -20);
+        return popupWindow;
+    }
+
+    private interface OnItemClickListener {
+        void onItemClick(String item);
     }
 }
