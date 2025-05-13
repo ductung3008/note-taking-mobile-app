@@ -105,6 +105,17 @@ public class NewNoteActivity extends BaseNoteActivity {
     protected void onDrawingCreated(Uri drawingUri) {
         viewModel.addDrawingPath(drawingUri);
     }
+    
+    @Override
+    protected void onImageDeleted(Uri imageUri) {
+        viewModel.removeImagePath(imageUri);
+    }
+    
+    @Override
+    protected void onAudioDeleted(String audioPath) {
+        // Remove from recorded paths list
+        recordedAudioPaths.remove(Uri.parse(audioPath));
+    }
 
     private void saveNote() {
         String title = edtTitle.getText().toString().trim();

@@ -12,6 +12,9 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,9 +59,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.lang.reflect.Method;
 
 /**
- * BaseNoteActivity là lớp trừu tượng chứa các chức năng và UI chung 
+ * BaseNoteActivity là lớp trừu tượng chứa các chức năng và UI chung
  * cho cả NewNoteActivity và EditNoteActivity
  */
 public abstract class BaseNoteActivity extends BaseActivity {
@@ -119,6 +123,35 @@ public abstract class BaseNoteActivity extends BaseActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 8, 0, 8);
         image.setLayoutParams(params);
+        
+        // Set image tag to store the URI for later reference
+        image.setTag(imageUri);
+        
+        // Add long press listener to show delete option
+        image.setOnLongClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(this, v);
+            popupMenu.getMenuInflater().inflate(R.menu.menu_media_options, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.menu_delete) {
+                    // Remove image from view
+                    container.removeView(image);
+                    // Handle image deletion from ViewModel - this will be implemented in child classes
+                    onImageDeleted((Uri) v.getTag());
+                    return true;
+                }
+                return false;
+            });
+            // Try to show icons in popup menu
+            try {
+                Method method = popupMenu.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+                method.setAccessible(true);
+                method.invoke(popupMenu.getMenu(), true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            popupMenu.show();
+            return true;
+        });
 
         container.addView(image);
 
@@ -316,27 +349,69 @@ public abstract class BaseNoteActivity extends BaseActivity {
     protected void addAudioItemToUI(String audioPath) {
         if (audioPath == null) return;
 
-        // Create a horizontal layout for each audio item
+        // Create a horizontal layout for each audio item with improved styling
         LinearLayout audioItemLayout = new LinearLayout(this);
         audioItemLayout.setOrientation(LinearLayout.HORIZONTAL);
-        audioItemLayout.setLayoutParams(new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-        audioItemLayout.setPadding(8, 8, 8, 8);
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        itemParams.setMargins(0, 4, 0, 4); // Add some spacing between items
+        audioItemLayout.setLayoutParams(itemParams);
+        audioItemLayout.setPadding(16, 12, 16, 12); // Increased padding for better touch area
+        audioItemLayout.setBackgroundResource(R.drawable.audio_item_background); // Create this drawable
+        audioItemLayout.setGravity(Gravity.CENTER_VERTICAL); // Center items vertically
+        
+        // Set a tag to store the audio path for reference
+        audioItemLayout.setTag(audioPath);
+        
+        // Add long press listener to show delete option
+        audioItemLayout.setOnLongClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(this, v);
+            popupMenu.getMenuInflater().inflate(R.menu.menu_media_options, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.menu_delete) {
+                    // Remove audio item from view
+                    audioContainer.removeView(v);
+                    // Handle audio deletion from ViewModel - this will be implemented in child classes
+                    onAudioDeleted((String) v.getTag());
+                    return true;
+                }
+                return false;
+            });
+            // Try to show icons in popup menu
+            try {
+                Method method = popupMenu.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+                method.setAccessible(true);
+                method.invoke(popupMenu.getMenu(), true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            popupMenu.show();
+            return true;
+        });
 
-        // Create a text view to show the file name
+        // Create a text view to show the file name with better styling
         TextView audioFileName = new TextView(this);
         File audioFile = new File(audioPath);
         audioFileName.setText(audioFile.getName());
+        audioFileName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16); // Larger text size
+        audioFileName.setTextColor(getResources().getColor(android.R.color.black)); // Better text contrast
+        audioFileName.setEllipsize(TextUtils.TruncateAt.END); // Truncate text if too long
+        audioFileName.setSingleLine(true); // Ensure single line display
         audioFileName.setLayoutParams(new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
-        // Create a play button for this audio item
-        Button playAudioButton = new Button(this);
-        playAudioButton.setText("Play");
-        playAudioButton.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
+        // Improve the play button styling
+        ImageButton playAudioButton = new ImageButton(this);
+        playAudioButton.setImageResource(R.drawable.ic_play);
+        int buttonSize = (int) (48 * getResources().getDisplayMetrics().density); // 48dp in pixels
+        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(buttonSize, buttonSize);
+        buttonParams.setMarginStart(8); // Add margin between text and button
+        playAudioButton.setLayoutParams(buttonParams);
+        playAudioButton.setScaleType(ImageView.ScaleType.FIT_CENTER); // Center the icon
+        playAudioButton.setBackgroundResource(R.drawable.round_button_background); // Create this drawable
+        playAudioButton.setColorFilter(getResources().getColor(R.color.color_icon)); // Tint the icon
+        playAudioButton.setPadding(12, 12, 12, 12); // Inner padding to size the icon
 
         // Set an ID for the path to be used in the click listener
         playAudioButton.setTag(audioPath);
@@ -510,4 +585,10 @@ public abstract class BaseNoteActivity extends BaseActivity {
     }
 
     protected abstract void onDrawingCreated(Uri drawingUri);
+
+    // Add this abstract method to handle image deletion in child classes
+    protected abstract void onImageDeleted(Uri imageUri);
+
+    // Add this abstract method to handle audio deletion in child classes
+    protected abstract void onAudioDeleted(String audioPath);
 }
