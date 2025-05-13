@@ -202,10 +202,10 @@ public abstract class BaseNoteActivity extends BaseActivity {
     protected void openCamera() {
         try {
             File photoFile = new File(getExternalFilesDir(null), "note_photo_" + System.currentTimeMillis() + ".jpg");
-            imageUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", photoFile);
+            imageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
             takePictureLauncher.launch(imageUri);
         } catch (Exception e) {
-            Toast.makeText(this, "Lỗi khi mở camera", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Lỗi khi mở camera: ", Toast.LENGTH_SHORT).show();
         }
     }
 
