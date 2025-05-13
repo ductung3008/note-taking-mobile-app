@@ -32,7 +32,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -47,6 +46,7 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.CheckListItem;
+import com.haui.notetakingapp.ui.base.BaseActivity;
 import com.haui.notetakingapp.ui.note.DrawActivity;
 
 import java.io.File;
@@ -57,7 +57,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public abstract class BaseNoteActivity extends AppCompatActivity {
+/**
+ * BaseNoteActivity là lớp trừu tượng chứa các chức năng và UI chung 
+ * cho cả NewNoteActivity và EditNoteActivity
+ */
+public abstract class BaseNoteActivity extends BaseActivity {
     protected static final int REQUEST_RECORD_AUDIO = 102;
     protected final int checklistCount = 0;
 
@@ -208,7 +212,7 @@ public abstract class BaseNoteActivity extends AppCompatActivity {
         if (isRecording) {
             stopRecording();
             Toast.makeText(this, "Đã dừng ghi âm", Toast.LENGTH_SHORT).show();
-            btnRecord.setImageResource(R.drawable.microphone);
+            btnRecord.setImageResource(R.drawable.ic_microphone);
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);

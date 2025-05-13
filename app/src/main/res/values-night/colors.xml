@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="app_background">#121212</color>
+    <color name="search_background">#252525</color>
+    <color name="fab_add_note">#FFA000</color>
+    <color name="primary_text">#FFFFFF</color>
+    <color name="secondary_text">#AAAAAA</color>
+    <color name="setting_row_hover">#2A2A2A</color>
+    <color name="setting_drop_down_item_selected_bg">#EBF1FF</color>
+    <color name="setting_drop_down_item_selected_text">#3681FF</color>
+    <color name="color_primary">#BB86FC</color>
+    <color name="color_primary_park">#3700B3</color>
+    <color name="color_accent">#333333</color>
+    <color name="color_icon">#FFFFFFFF</color>
+    <color name="color_menu_background">#161616</color>
+    <color name="drop_down_background">#222222</color>
+</resources>

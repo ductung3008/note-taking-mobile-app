@@ -21,7 +21,8 @@
                 android:text="@string/tv_home_header"
                 android:textColor="@color/primary_text"
                 android:textSize="20sp"
-                android:textFontWeight="500" />
+                android:textFontWeight="500"
+                tools:targetApi="28" />
 
         <ImageButton
                 android:id="@+id/btn_back"
@@ -29,9 +30,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_arrow_back"
+                android:src="@drawable/ic_arrow_left"
                 android:contentDescription="@string/btn_back_desc"
-                android:layout_gravity="start|center_vertical" />
+                android:layout_gravity="start|center_vertical"
+                app:tint="@color/color_icon"/>
     </FrameLayout>
 
     <ScrollView

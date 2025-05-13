@@ -12,18 +12,19 @@
     <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/white"
             android:elevation="4dp"
             android:paddingHorizontal="16dp">
 
         <ImageButton
-                android:id="@+id/btn_back_trash"
+                android:id="@+id/btn_back"
+                android:padding="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_left"
                 android:contentDescription="@string/btn_back_desc"
-                android:src="@drawable/ic_arrow_back" />
+                android:layout_gravity="start|center_vertical"
+                app:tint="@color/color_icon"/>
 
         <TextView
                 android:layout_width="wrap_content"
@@ -41,7 +42,7 @@
                 android:layout_gravity="end|center_vertical"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Empty Trash"
-                android:src="@drawable/ic_delete_all" />
+                android:src="@drawable/ic_trash_can" />
     </FrameLayout>
 
     <TextView

@@ -6,6 +6,7 @@
         <item>Lớn</item>
     </string-array>
     <string-array name="sort_by_options">
+        <item>Theo tiêu đề</item>
         <item>Theo ngày tạo</item>
         <item>Theo ngày chỉnh sửa</item>
     </string-array>

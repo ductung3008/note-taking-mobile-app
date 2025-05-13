@@ -44,7 +44,7 @@
                         android:textSize="16sp"
                         android:layout_toStartOf="@+id/iv_pin"
                         android:layout_marginEnd="8dp"
-                        android:textColor="@color/primary_text" />
+                        android:textColor="@color/black"/>
 
                 <ImageView
                         android:id="@+id/iv_pin"
@@ -52,9 +52,9 @@
                         android:layout_height="16dp"
                         android:layout_alignParentEnd="true"
                         android:src="@drawable/ic_keep"
-                        android:tint="#FF0000"
                         android:visibility="gone"
-                        tools:visibility="visible" />
+                        tools:visibility="visible"
+                        app:tint="@android:color/holo_red_light"/>
             </RelativeLayout>
 
             <TextView

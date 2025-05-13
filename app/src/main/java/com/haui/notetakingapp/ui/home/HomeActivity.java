@@ -11,7 +11,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -23,6 +22,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
+import com.haui.notetakingapp.ui.base.BaseActivity;
 import com.haui.notetakingapp.ui.note.DeletedNoteActivity;
 import com.haui.notetakingapp.ui.note.EditNoteActivity;
 import com.haui.notetakingapp.ui.note.NewNoteActivity;
@@ -31,7 +31,7 @@ import com.haui.notetakingapp.viewmodel.HomeViewModel;
 
 import java.util.ArrayList;
 
-public class HomeActivity extends AppCompatActivity implements NoteAdapter.OnNoteListener {
+public class HomeActivity extends BaseActivity implements NoteAdapter.OnNoteListener {
     private ImageButton btnTrashCan, btnSetting;
     private RecyclerView rvNotes;
     private NoteAdapter noteAdapter;
@@ -53,25 +53,33 @@ public class HomeActivity extends AppCompatActivity implements NoteAdapter.OnNot
         // Initialize UI components
         bindView();
 
-        // Setup RecyclerView
-        noteAdapter = new NoteAdapter(new ArrayList<>(), this);
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        rvNotes.setLayoutManager(layoutManager);
-        rvNotes.setAdapter(noteAdapter);
-
-        // Initialize ViewModel
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
-        // Observe notes from ViewModel
+        // Setup RecyclerView
+        noteAdapter = new NoteAdapter(new ArrayList<>(), this);
+
+        viewModel.getLayoutSetting().observe(this, layout -> {
+            int spanCount = layout.equals("Xem theo ô lưới") ? 2 : 1;
+            StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL);
+            rvNotes.setLayoutManager(layoutManager);
+        });
+
+        viewModel.getSortBySetting().observe(this, sortBy -> {
+        });
+
+        rvNotes.setAdapter(noteAdapter);
+
         viewModel.getAllNotes().observe(this, notes -> noteAdapter.setNotes(notes));
 
-        // Initialize activity launcher for new note creation
         setupNewNoteActivityLauncher();
-
         setupEditNoteActivityLauncher();
-
-        // Setup button click listeners
         setupClickListeners();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.refreshSettings();
     }
 
     private void bindView() {
