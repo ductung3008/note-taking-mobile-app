@@ -26,6 +26,6 @@
         android:gravity="center"
         android:padding="12dp"
         android:textSize="14sp"
-        app:drawableTopCompat="@drawable/ic_delete_all" app:drawableTint="@color/black"
+        app:drawableTopCompat="@drawable/avatar_default" app:drawableTint="@color/black"
         android:drawablePadding="8dp" />
 </LinearLayout>
