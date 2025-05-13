@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -30,14 +32,18 @@ import com.haui.notetakingapp.ui.setting.SettingActivity;
 import com.haui.notetakingapp.viewmodel.HomeViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class HomeActivity extends BaseActivity implements NoteAdapter.OnNoteListener {
+public class HomeActivity extends BaseActivity {
     private ImageButton btnTrashCan, btnSetting;
-    private RecyclerView rvNotes;
-    private NoteAdapter noteAdapter;
+    private RecyclerView rvPinnedNotes, rvUnpinnedNotes;
+    private NoteAdapter pinnedAdapter, unpinnedAdapter;
+    private TextView tvPinnedHeader, tvUnpinnedHeader;
+    private SearchView searchView;
     private HomeViewModel viewModel;
     private ActivityResultLauncher<Intent> newNoteActivityLauncher;
     private ActivityResultLauncher<Intent> editNoteActivityLauncher;
+    private List<Note> allNotes; // Lưu trữ danh sách ghi chú gốc
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,21 +61,69 @@ public class HomeActivity extends BaseActivity implements NoteAdapter.OnNoteList
 
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
-        // Setup RecyclerView
-        noteAdapter = new NoteAdapter(new ArrayList<>(), this);
+        // Initialize allNotes
+        allNotes = new ArrayList<>();
+
+        // Setup RecyclerViews
+        pinnedAdapter = new NoteAdapter(new ArrayList<>());
+        unpinnedAdapter = new NoteAdapter(new ArrayList<>());
+
+        // Set listeners for adapters
+        pinnedAdapter.setOnNoteListener(new NoteAdapter.OnNoteListener() {
+            @Override
+            public void onClick(int position) {
+                handleNoteClick(pinnedAdapter, position);
+            }
+
+            @Override
+            public boolean onLongClick(int position) {
+                return handleNoteLongClick(pinnedAdapter, position);
+            }
+        });
+
+        unpinnedAdapter.setOnNoteListener(new NoteAdapter.OnNoteListener() {
+            @Override
+            public void onClick(int position) {
+                handleNoteClick(unpinnedAdapter, position);
+            }
+
+            @Override
+            public boolean onLongClick(int position) {
+                return handleNoteLongClick(unpinnedAdapter, position);
+            }
+        });
 
         viewModel.getLayoutSetting().observe(this, layout -> {
             int spanCount = layout.equals("Xem theo ô lưới") ? 2 : 1;
-            StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL);
-            rvNotes.setLayoutManager(layoutManager);
+            StaggeredGridLayoutManager pinnedLayoutManager = new StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL);
+            StaggeredGridLayoutManager unpinnedLayoutManager = new StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL);
+            rvPinnedNotes.setLayoutManager(pinnedLayoutManager);
+            rvUnpinnedNotes.setLayoutManager(unpinnedLayoutManager);
         });
 
-        viewModel.getSortBySetting().observe(this, sortBy -> {
+        rvPinnedNotes.setAdapter(pinnedAdapter);
+        rvUnpinnedNotes.setAdapter(unpinnedAdapter);
+
+        // Observe notes and store original list
+        viewModel.getAllNotes().observe(this, notes -> {
+            allNotes.clear();
+            allNotes.addAll(notes);
+            filterNotes(""); // Hiển thị tất cả khi không có tìm kiếm
         });
 
-        rvNotes.setAdapter(noteAdapter);
+        // Setup SearchView listener
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false; // Không xử lý khi nhấn Enter
+            }
 
-        viewModel.getAllNotes().observe(this, notes -> noteAdapter.setNotes(notes));
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterNotes(newText);
+                return true;
+            }
+        });
 
         setupNewNoteActivityLauncher();
         setupEditNoteActivityLauncher();
@@ -83,9 +137,13 @@ public class HomeActivity extends BaseActivity implements NoteAdapter.OnNoteList
     }
 
     private void bindView() {
-        rvNotes = findViewById(R.id.rv_notes);
+        rvPinnedNotes = findViewById(R.id.rv_notes);
+        rvUnpinnedNotes = findViewById(R.id.rv_notes_not);
         btnTrashCan = findViewById(R.id.btn_trash_can);
         btnSetting = findViewById(R.id.btn_setting);
+        tvPinnedHeader = findViewById(R.id.tv_pinned_header);
+        tvUnpinnedHeader = findViewById(R.id.tv_unpinned_header);
+        searchView = findViewById(R.id.search_view);
     }
 
     private void setupNewNoteActivityLauncher() {
@@ -104,7 +162,7 @@ public class HomeActivity extends BaseActivity implements NoteAdapter.OnNoteList
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                 Note editedNote = (Note) result.getData().getSerializableExtra("objEditedNote");
                 if (editedNote != null) {
-                    viewModel.update(editedNote); // Update the note in database
+                    viewModel.update(editedNote);
                 }
             }
         });
@@ -128,27 +186,61 @@ public class HomeActivity extends BaseActivity implements NoteAdapter.OnNoteList
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void filterNotes(String query) {
+        List<Note> pinnedNotes = new ArrayList<>();
+        List<Note> unpinnedNotes = new ArrayList<>();
+
+        if (query.trim().isEmpty()) {
+            // Không có tìm kiếm: hiển thị danh sách gốc
+            for (Note note : allNotes) {
+                if (note.isPinned()) {
+                    pinnedNotes.add(note);
+                } else {
+                    unpinnedNotes.add(note);
+                }
+            }
+        } else {
+            // Có tìm kiếm: lọc ghi chú dựa trên tiêu đề
+            String queryLowerCase = query.toLowerCase();
+            for (Note note : allNotes) {
+                if (note.getTitle() != null && note.getTitle().toLowerCase().startsWith(queryLowerCase)) {
+                    if (note.isPinned()) {
+                        pinnedNotes.add(note);
+                    } else {
+                        unpinnedNotes.add(note);
+                    }
+                }
+            }
+        }
+
+        // Cập nhật adapters
+        pinnedAdapter.setNotes(pinnedNotes);
+        unpinnedAdapter.setNotes(unpinnedNotes);
+
+        // Ẩn/hiện tiêu đề dựa trên dữ liệu
+        tvPinnedHeader.setVisibility(pinnedNotes.isEmpty() ? View.GONE : View.VISIBLE);
+        tvUnpinnedHeader.setVisibility(unpinnedNotes.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
-    @Override
-    public void onClick(int position) {
-        Note selectedNote = noteAdapter.getNoteAt(position);
-        Intent intent = new Intent(HomeActivity.this, EditNoteActivity.class);
-        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.putExtra("noteToEdit", selectedNote);
-        editNoteActivityLauncher.launch(intent);
+    private void handleNoteClick(NoteAdapter adapter, int position) {
+        Note selectedNote = adapter.getNoteAt(position);
+        if (selectedNote != null) {
+            Intent intent = new Intent(HomeActivity.this, EditNoteActivity.class);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.putExtra("noteToEdit", selectedNote);
+            editNoteActivityLauncher.launch(intent);
+        }
     }
 
-    @Override
-    public boolean onLongClick(int position) {
+    private boolean handleNoteLongClick(NoteAdapter adapter, int position) {
+        Note selectedNote = adapter.getNoteAt(position);
+        if (selectedNote == null) {
+            return false;
+        }
+
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         View view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_note_menu, null);
         bottomSheetDialog.setContentView(view);
-
-        Note selectedNote = noteAdapter.getNoteAt(position);
 
         view.findViewById(R.id.optionPin).setOnClickListener(v -> {
             selectedNote.setPinned(!selectedNote.isPinned());
@@ -181,7 +273,6 @@ public class HomeActivity extends BaseActivity implements NoteAdapter.OnNoteList
         });
 
         bottomSheetDialog.show();
-
         return true;
     }
 }
