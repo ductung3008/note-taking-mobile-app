@@ -10,7 +10,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -22,16 +21,17 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.ui.home.NoteAdapter;
+import com.haui.notetakingapp.ui.base.BaseActivity;
 import com.haui.notetakingapp.viewmodel.DeletedNoteViewModel;
 
 import java.util.ArrayList;
 
-public class DeletedNoteActivity extends AppCompatActivity implements NoteAdapter.OnNoteListener { // Triển khai interface listener nếu NoteAdapter hỗ trợ
+public class DeletedNoteActivity extends BaseActivity implements NoteAdapter.OnNoteListener { // Triển khai interface listener nếu NoteAdapter hỗ trợ
 
     private DeletedNoteViewModel viewModel;
     private RecyclerView rvDeletedNotes;
     private NoteAdapter deletedNoteAdapter; // Sử dụng NoteAdapter hoặc tạo adapter riêng
-    private ImageButton btnBackTrash;
+    private ImageButton btnBack;
     private ImageButton btnEmptyTrash; // Nút xóa tất cả
 
     @Override
@@ -53,7 +53,7 @@ public class DeletedNoteActivity extends AppCompatActivity implements NoteAdapte
 
     private void bindViews() {
         rvDeletedNotes = findViewById(R.id.rv_deleted_notes);
-        btnBackTrash = findViewById(R.id.btn_back_trash);
+        btnBack = findViewById(R.id.btn_back);
         btnEmptyTrash = findViewById(R.id.btn_empty_trash); // Kết nối với nút xóa tất cả trong XML
     }
 
@@ -76,7 +76,7 @@ public class DeletedNoteActivity extends AppCompatActivity implements NoteAdapte
     }
 
     private void setupClickListeners() {
-        btnBackTrash.setOnClickListener(v -> finish()); // Quay lại màn hình trước
+        btnBack.setOnClickListener(v -> finish()); // Quay lại màn hình trước
 
         btnEmptyTrash.setOnClickListener(v -> showEmptyTrashConfirmation()); // Hiển thị xác nhận xóa tất cả
     }

@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -32,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.haui.notetakingapp.R;
+
 import com.haui.notetakingapp.data.local.NoteDatabase;
 import com.haui.notetakingapp.data.local.dao.NoteDao;
 import com.haui.notetakingapp.data.remote.firebase.SyncManager;
@@ -42,8 +42,11 @@ import javax.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 
+import com.haui.notetakingapp.ui.base.BaseActivity;
+import com.haui.notetakingapp.ui.home.HomeActivity;
+import com.haui.notetakingapp.viewmodel.LoginViewModel;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
     private EditText etEmail, etPassword;
     private CheckBox cbRemember;
     private Button btnSignIn;

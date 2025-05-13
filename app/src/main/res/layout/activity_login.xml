@@ -5,7 +5,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="24dp"
-        android:background="#FFFFFF"
+        android:background="@color/app_background"
         tools:context=".ui.auth.LoginActivity">
 
 
@@ -17,7 +17,7 @@
             android:textAllCaps="true"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="#FFA726"
+            android:textColor="#2196F3"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

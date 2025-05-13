@@ -9,7 +9,6 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -19,12 +18,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.FileManager;
+import com.haui.notetakingapp.ui.base.BaseActivity;
 
 import java.util.ArrayList;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-public class DrawActivity extends AppCompatActivity {
+public class DrawActivity extends BaseActivity {
     public static final String EXTRA_DRAWING_URI = "extra_drawing_uri";
     private FloatingActionButton fabColorPicker, fabUndo;
     private SignaturePad signaturePad;

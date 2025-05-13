@@ -21,7 +21,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_arrow_back"
+                    android:src="@drawable/ic_arrow_left"
+                    app:tint="@color/color_icon"
                     android:contentDescription="@string/btn_back_desc" />
 
             <ImageButton
@@ -32,7 +33,8 @@
                     android:layout_alignParentEnd="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/save"
-                    android:src="@drawable/check_solid1" />
+                    app:tint="@color/color_icon"
+                    android:src="@drawable/ic_check_solid" />
 
             <com.github.gcacace.signaturepad.views.SignaturePad
                     android:id="@+id/signature_pad"
