@@ -112,6 +112,23 @@ public class EditNoteActivity extends BaseNoteActivity {
         viewModel.addDrawingPath(drawingUri);
     }
 
+    @Override
+    protected void onImageDeleted(Uri imageUri) {
+        viewModel.removeImagePath(imageUri);
+    }
+
+    @Override
+    protected void onAudioDeleted(String audioPath) {
+        // Remove from existing paths if it's there
+        existingAudioPaths.remove(audioPath);
+        
+        // If it's a newly recorded audio, remove from that list too
+        newAudioPaths.remove(audioPath);
+        
+        // Remove from viewModel
+        viewModel.removeAudioPath(audioPath);
+    }
+
     private void myDisplay() {
         Note note = (Note) getIntent().getSerializableExtra("noteToEdit");
 

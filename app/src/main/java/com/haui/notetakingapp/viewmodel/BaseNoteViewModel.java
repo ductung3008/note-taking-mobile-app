@@ -62,12 +62,10 @@ public abstract class BaseNoteViewModel extends AndroidViewModel {
         }
     }
 
-    public List<String> getDrawingPaths() {
-        return drawingPaths;
-    }
-
-    public void setDrawingPaths(List<String> drawingPaths) {
-        this.drawingPaths = drawingPaths;
+    public void removeImagePath(Uri imageUri) {
+        if (imageUri != null) {
+            imagePaths.remove(String.valueOf(imageUri));
+        }
     }
 
     public void addAudioPath(String audioPath) {
@@ -81,6 +79,12 @@ public abstract class BaseNoteViewModel extends AndroidViewModel {
             if (audioPath != null) {
                 this.audioPaths.add(String.valueOf(audioPath));
             }
+        }
+    }
+
+    public void removeAudioPath(String audioPath) {
+        if (audioPath != null) {
+            audioPaths.remove(audioPath);
         }
     }
 
@@ -153,4 +157,12 @@ public abstract class BaseNoteViewModel extends AndroidViewModel {
     }
 
     public abstract void saveNote();
+
+    public List<String> getDrawingPaths() {
+        return drawingPaths;
+    }
+
+    public void setDrawingPaths(List<String> drawingPaths) {
+        this.drawingPaths = drawingPaths;
+    }
 }

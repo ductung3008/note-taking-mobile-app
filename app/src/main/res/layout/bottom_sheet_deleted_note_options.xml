@@ -22,10 +22,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Xóa vĩnh viễn"
+        android:drawablePadding="8dp"
         android:gravity="center"
         android:padding="12dp"
+        android:text="Xóa vĩnh viễn"
         android:textSize="14sp"
+
         app:drawableTopCompat="@drawable/avatar_default" app:drawableTint="@color/black"
         android:drawablePadding="8dp" />
+
 </LinearLayout>
