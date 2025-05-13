@@ -358,7 +358,7 @@ public abstract class BaseNoteActivity extends BaseActivity {
         itemParams.setMargins(0, 4, 0, 4); // Add some spacing between items
         audioItemLayout.setLayoutParams(itemParams);
         audioItemLayout.setPadding(16, 12, 16, 12); // Increased padding for better touch area
-        audioItemLayout.setBackgroundResource(R.drawable.audio_item_background); // Create this drawable
+//        audioItemLayout.setBackgroundResource(R.drawable.audio_item_background); // Create this drawable
         audioItemLayout.setGravity(Gravity.CENTER_VERTICAL); // Center items vertically
         
         // Set a tag to store the audio path for reference
