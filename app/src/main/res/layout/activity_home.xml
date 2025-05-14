@@ -1,138 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/app_background"
-    android:orientation="vertical"
-    tools:context=".ui.home.HomeActivity">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_background"
+        android:orientation="vertical"
+        tools:context=".ui.home.HomeActivity">
 
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/tv_home_header"
-            android:textColor="@color/primary_text"
-            android:textFontWeight="500"
-            android:textSize="20sp"
-            tools:targetApi="28" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/tv_home_header"
+                android:textColor="@color/primary_text"
+                android:textFontWeight="500"
+                android:textSize="20sp"
+                tools:targetApi="28" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginEnd="12dp">
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="12dp">
 
             <ImageButton
-                android:id="@+id/btn_trash_can"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/btn_trash_can_desc"
-                android:src="@drawable/ic_trash_can"
-                app:tint="@color/color_icon" />
+                    android:id="@+id/btn_trash_can"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/btn_trash_can_desc"
+                    android:src="@drawable/ic_trash_can"
+                    app:tint="@color/color_icon" />
 
             <ImageButton
-                android:id="@+id/btn_setting"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/btn_setting_desc"
-                android:src="@drawable/ic_setting"
-                app:tint="@color/color_icon" />
+                    android:id="@+id/btn_setting"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/btn_setting_desc"
+                    android:src="@drawable/ic_setting"
+                    app:tint="@color/color_icon" />
         </LinearLayout>
     </FrameLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginHorizontal="24sp"
-        android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="24sp"
+            android:orientation="vertical">
 
         <androidx.appcompat.widget.SearchView
-            android:id="@+id/search_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/rounded_edittext_background"
-            app:iconifiedByDefault="false"
-            app:queryBackground="@null"
-            app:queryHint="@string/edt_search_hint"
-            app:submitBackground="@null" />
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/rounded_edittext_background"
+                app:iconifiedByDefault="false"
+                app:queryBackground="@null"
+                app:queryHint="@string/edt_search_hint"
+                app:submitBackground="@null" />
 
         <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tv_pinned_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:text="Đã ghim"
-                    android:textColor="@color/primary_text"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                        android:id="@+id/tv_pinned_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="4dp"
+                        android:text="Đã ghim"
+                        android:textColor="@color/primary_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_notes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/rounded_corner_top"
-                    android:clipToOutline="true"
-                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                    tools:ignore="UnusedAttribute" />
+                        android:id="@+id/rv_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/rounded_corner_top"
+                        android:clipToOutline="true"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                        tools:ignore="UnusedAttribute" />
+
+                <View
+                        android:id="@+id/divider_pinned"
+                        style="@style/DividerStyle"
+                        android:layout_marginHorizontal="0dp"
+                        android:layout_marginVertical="4dp" />
 
                 <TextView
-                    android:id="@+id/tv_unpinned_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:text="Công việc"
-                    android:textColor="@color/primary_text"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                        android:id="@+id/tv_unpinned_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:text="Ghi chú"
+                        android:textColor="@color/primary_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_notes_not"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_corner_top"
-                    android:clipToOutline="true"
-                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                    tools:ignore="UnusedAttribute" />
+                        android:id="@+id/rv_notes_not"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_corner_top"
+                        android:clipToOutline="true"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                        tools:ignore="UnusedAttribute" />
 
             </LinearLayout>
 
+            <!-- Empty state message -->
+            <TextView
+                    android:id="@+id/tv_empty_notes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Không có ghi chú nào."
+                    android:textColor="@color/primary_text"
+                    android:textSize="18sp"
+                    android:visibility="gone" />
+
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_add_note"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_marginEnd="20sp"
-                android:layout_marginBottom="60sp"
-                android:contentDescription="@string/fab_add_note_desc"
-                android:src="@drawable/ic_add_white"
-                app:backgroundTint="@color/fab_add_note"
-                app:shapeAppearance="?attr/shapeAppearance"
-                app:tint="@null" />
+                    android:id="@+id/fab_add_note"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="20sp"
+                    android:layout_marginBottom="60sp"
+                    android:contentDescription="@string/fab_add_note_desc"
+                    android:src="@drawable/ic_add_white"
+                    app:backgroundTint="@color/fab_add_note"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    app:tint="@null" />
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>

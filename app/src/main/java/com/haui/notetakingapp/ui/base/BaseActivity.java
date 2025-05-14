@@ -18,7 +18,7 @@ public class BaseActivity extends AppCompatActivity {
     private void applyTheme() {
         SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
         String theme = prefs.getString("theme", "Sáng");
-        
+
         switch (theme) {
             case "Tối":
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);

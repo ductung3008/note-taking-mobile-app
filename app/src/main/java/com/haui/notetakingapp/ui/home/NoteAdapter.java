@@ -2,6 +2,7 @@ package com.haui.notetakingapp.ui.home;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.text.SpannableString;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.haui.notetakingapp.R;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.utils.DateTimeUtils;
+import com.haui.notetakingapp.utils.TextHighlighter;
 
 import java.util.List;
 
@@ -33,6 +35,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     };
     private List<Note> notes;
     private OnNoteListener listener;
+    private String searchTerm = "";
 
     public NoteAdapter(List<Note> notes) {
         this.notes = notes;
@@ -57,8 +60,26 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     @Override
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
         Note note = notes.get(position);
-        holder.tvTitle.setText(note.getTitle());
-        holder.tvContent.setText(note.getContent());
+
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            if (note.getTitle() != null) {
+                SpannableString titleSpannable = TextHighlighter.highlightText(note.getTitle(), searchTerm);
+                holder.tvTitle.setText(titleSpannable);
+            } else {
+                holder.tvTitle.setText("");
+            }
+
+            if (note.getContent() != null) {
+                SpannableString contentSpannable = TextHighlighter.highlightText(note.getContent(), searchTerm);
+                holder.tvContent.setText(contentSpannable);
+            } else {
+                holder.tvContent.setText("");
+            }
+        } else {
+            holder.tvTitle.setText(note.getTitle());
+            holder.tvContent.setText(note.getContent());
+        }
+
         holder.tvDate.setText(DateTimeUtils.formatToDayMonth(note.getCreatedAt()));
 
         holder.ivPin.setVisibility(note.isPinned() ? View.VISIBLE : View.GONE);
@@ -73,6 +94,11 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         holder.ivImageIndicator.setVisibility((note.getImagePaths() != null && !note.getImagePaths().isEmpty()) ? View.VISIBLE : View.GONE);
         holder.ivAudioIndicator.setVisibility((note.getAudioPaths() != null && !note.getAudioPaths().isEmpty()) ? View.VISIBLE : View.GONE);
         holder.ivDrawingIndicator.setVisibility((note.getDrawingPaths() != null && !note.getDrawingPaths().isEmpty()) ? View.VISIBLE : View.GONE);
+    }
+
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
+        notifyDataSetChanged();
     }
 
     private void setupNoteImage(NoteViewHolder holder, Note note) {

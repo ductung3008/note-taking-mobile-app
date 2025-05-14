@@ -68,14 +68,26 @@ public class HomeViewModel extends AndroidViewModel {
 
         switch (sortBy) {
             case "Theo tiêu đề":
-                comparator = (n1, n2) -> n1.getTitle().compareToIgnoreCase(n2.getTitle());
+                comparator = (n1, n2) -> {
+                    String title1 = n1.getTitle() != null ? n1.getTitle() : "";
+                    String title2 = n2.getTitle() != null ? n2.getTitle() : "";
+                    return title1.compareToIgnoreCase(title2);
+                };
                 break;
             case "Theo ngày tạo":
-                comparator = (n1, n2) -> Math.toIntExact(n2.getCreatedAt() - n1.getCreatedAt());
+                comparator = (n1, n2) -> {
+                    // Safe comparison of timestamps
+                    long diff = n2.getCreatedAt() - n1.getCreatedAt();
+                    return diff > 0 ? 1 : (diff < 0 ? -1 : 0);
+                };
                 break;
             case "Theo ngày chỉnh sửa":
             default:
-                comparator = (n1, n2) -> Math.toIntExact(n2.getUpdatedAt() - n1.getUpdatedAt());
+                comparator = (n1, n2) -> {
+                    // Safe comparison of timestamps
+                    long diff = n2.getUpdatedAt() - n1.getUpdatedAt();
+                    return diff > 0 ? 1 : (diff < 0 ? -1 : 0);
+                };
                 break;
         }
 

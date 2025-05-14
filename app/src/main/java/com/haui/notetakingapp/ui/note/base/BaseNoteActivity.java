@@ -54,12 +54,12 @@ import com.haui.notetakingapp.ui.note.DrawActivity;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.lang.reflect.Method;
 
 /**
  * BaseNoteActivity là lớp trừu tượng chứa các chức năng và UI chung
@@ -123,10 +123,10 @@ public abstract class BaseNoteActivity extends BaseActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 8, 0, 8);
         image.setLayoutParams(params);
-        
+
         // Set image tag to store the URI for later reference
         image.setTag(imageUri);
-        
+
         // Add long press listener to show delete option
         image.setOnLongClickListener(v -> {
             PopupMenu popupMenu = new PopupMenu(this, v);
@@ -293,7 +293,6 @@ public abstract class BaseNoteActivity extends BaseActivity {
             return;
         }
 
-        Toast.makeText(this, "Working", Toast.LENGTH_SHORT).show();
         File outputDir = getExternalFilesDir(Environment.DIRECTORY_MUSIC);
         if (outputDir != null) {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -360,10 +359,10 @@ public abstract class BaseNoteActivity extends BaseActivity {
         audioItemLayout.setPadding(16, 12, 16, 12); // Increased padding for better touch area
 //        audioItemLayout.setBackgroundResource(R.drawable.audio_item_background); // Create this drawable
         audioItemLayout.setGravity(Gravity.CENTER_VERTICAL); // Center items vertically
-        
+
         // Set a tag to store the audio path for reference
         audioItemLayout.setTag(audioPath);
-        
+
         // Add long press listener to show delete option
         audioItemLayout.setOnLongClickListener(v -> {
             PopupMenu popupMenu = new PopupMenu(this, v);
@@ -394,24 +393,22 @@ public abstract class BaseNoteActivity extends BaseActivity {
         TextView audioFileName = new TextView(this);
         File audioFile = new File(audioPath);
         audioFileName.setText(audioFile.getName());
-        audioFileName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16); // Larger text size
-        audioFileName.setTextColor(getResources().getColor(android.R.color.black)); // Better text contrast
-        audioFileName.setEllipsize(TextUtils.TruncateAt.END); // Truncate text if too long
-        audioFileName.setSingleLine(true); // Ensure single line display
-        audioFileName.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        audioFileName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        audioFileName.setEllipsize(TextUtils.TruncateAt.END);
+        audioFileName.setSingleLine(true);
+        audioFileName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
         // Improve the play button styling
         ImageButton playAudioButton = new ImageButton(this);
         playAudioButton.setImageResource(R.drawable.ic_play);
-        int buttonSize = (int) (48 * getResources().getDisplayMetrics().density); // 48dp in pixels
+        int buttonSize = (int) (48 * getResources().getDisplayMetrics().density);
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(buttonSize, buttonSize);
-        buttonParams.setMarginStart(8); // Add margin between text and button
+        buttonParams.setMarginStart(8);
         playAudioButton.setLayoutParams(buttonParams);
-        playAudioButton.setScaleType(ImageView.ScaleType.FIT_CENTER); // Center the icon
-        playAudioButton.setBackgroundResource(R.drawable.round_button_background); // Create this drawable
-        playAudioButton.setColorFilter(getResources().getColor(R.color.color_icon)); // Tint the icon
-        playAudioButton.setPadding(12, 12, 12, 12); // Inner padding to size the icon
+        playAudioButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        playAudioButton.setBackgroundResource(R.drawable.round_button_background);
+        playAudioButton.setColorFilter(getResources().getColor(R.color.color_icon));
+        playAudioButton.setPadding(12, 12, 12, 12);
 
         // Set an ID for the path to be used in the click listener
         playAudioButton.setTag(audioPath);
@@ -493,7 +490,6 @@ public abstract class BaseNoteActivity extends BaseActivity {
         EditText editText = new EditText(this);
         editText.setHint("Nhập mục checklist...");
         editText.setBackground(null);
-        editText.setTextColor(getResources().getColor(R.color.black));
         editText.setTextSize(16);
         editText.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
         editText.setImeOptions(EditorInfo.IME_ACTION_DONE);

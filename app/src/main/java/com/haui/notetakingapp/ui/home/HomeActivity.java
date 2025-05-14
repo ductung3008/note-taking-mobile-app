@@ -38,12 +38,13 @@ public class HomeActivity extends BaseActivity {
     private ImageButton btnTrashCan, btnSetting;
     private RecyclerView rvPinnedNotes, rvUnpinnedNotes;
     private NoteAdapter pinnedAdapter, unpinnedAdapter;
-    private TextView tvPinnedHeader, tvUnpinnedHeader;
+    private TextView tvPinnedHeader, tvUnpinnedHeader, tvEmptyNotes;
     private SearchView searchView;
+    private View dividerPinned;
     private HomeViewModel viewModel;
     private ActivityResultLauncher<Intent> newNoteActivityLauncher;
     private ActivityResultLauncher<Intent> editNoteActivityLauncher;
-    private List<Note> allNotes; // Lưu trữ danh sách ghi chú gốc
+    private List<Note> allNotes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +144,9 @@ public class HomeActivity extends BaseActivity {
         btnSetting = findViewById(R.id.btn_setting);
         tvPinnedHeader = findViewById(R.id.tv_pinned_header);
         tvUnpinnedHeader = findViewById(R.id.tv_unpinned_header);
+        dividerPinned = findViewById(R.id.divider_pinned);
         searchView = findViewById(R.id.search_view);
+        tvEmptyNotes = findViewById(R.id.tv_empty_notes);
     }
 
     private void setupNewNoteActivityLauncher() {
@@ -191,7 +194,6 @@ public class HomeActivity extends BaseActivity {
         List<Note> unpinnedNotes = new ArrayList<>();
 
         if (query.trim().isEmpty()) {
-            // Không có tìm kiếm: hiển thị danh sách gốc
             for (Note note : allNotes) {
                 if (note.isPinned()) {
                     pinnedNotes.add(note);
@@ -200,10 +202,10 @@ public class HomeActivity extends BaseActivity {
                 }
             }
         } else {
-            // Có tìm kiếm: lọc ghi chú dựa trên tiêu đề
             String queryLowerCase = query.toLowerCase();
             for (Note note : allNotes) {
-                if (note.getTitle() != null && note.getTitle().toLowerCase().startsWith(queryLowerCase)) {
+                if (note.getTitle() != null && note.getTitle().toLowerCase().contains(queryLowerCase)
+                        || note.getContent() != null && note.getContent().toLowerCase().contains(queryLowerCase)) {
                     if (note.isPinned()) {
                         pinnedNotes.add(note);
                     } else {
@@ -213,13 +215,17 @@ public class HomeActivity extends BaseActivity {
             }
         }
 
-        // Cập nhật adapters
+        pinnedAdapter.setSearchTerm(query.trim());
+        unpinnedAdapter.setSearchTerm(query.trim());
+
         pinnedAdapter.setNotes(pinnedNotes);
         unpinnedAdapter.setNotes(unpinnedNotes);
 
-        // Ẩn/hiện tiêu đề dựa trên dữ liệu
         tvPinnedHeader.setVisibility(pinnedNotes.isEmpty() ? View.GONE : View.VISIBLE);
+        dividerPinned.setVisibility(pinnedNotes.isEmpty() ? View.GONE : View.VISIBLE);
         tvUnpinnedHeader.setVisibility(unpinnedNotes.isEmpty() ? View.GONE : View.VISIBLE);
+
+        tvEmptyNotes.setVisibility(pinnedNotes.isEmpty() && unpinnedNotes.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void handleNoteClick(NoteAdapter adapter, int position) {

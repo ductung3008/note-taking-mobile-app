@@ -25,35 +25,30 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.haui.notetakingapp.R;
-
 import com.haui.notetakingapp.data.local.NoteDatabase;
 import com.haui.notetakingapp.data.local.dao.NoteDao;
 import com.haui.notetakingapp.data.remote.firebase.SyncManager;
+import com.haui.notetakingapp.ui.base.BaseActivity;
 import com.haui.notetakingapp.ui.home.HomeActivity;
 import com.haui.notetakingapp.viewmodel.LoginViewModel;
 
 import javax.annotation.Nullable;
 
-import com.google.android.gms.tasks.Task;
-
-import com.haui.notetakingapp.ui.base.BaseActivity;
-import com.haui.notetakingapp.ui.home.HomeActivity;
-import com.haui.notetakingapp.viewmodel.LoginViewModel;
-
 public class LoginActivity extends BaseActivity {
+    private static final int RC_SIGN_IN = 100;
     private EditText etEmail, etPassword;
     private CheckBox cbRemember;
     private Button btnSignIn;
     private TextView tvForgot, tvSignUp;
     private ProgressBar progressBar;
     private LoginViewModel viewModel;
-    private static final int RC_SIGN_IN = 100;
     private GoogleSignInClient googleSignInClient;
 
     private MaterialButton googleSignInButton;
@@ -78,7 +73,6 @@ public class LoginActivity extends BaseActivity {
                 .requestIdToken(getString(R.string.default_web_client_id)) // ID này tự động từ google-services.json
                 .requestEmail()
                 .build();
-
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
     }

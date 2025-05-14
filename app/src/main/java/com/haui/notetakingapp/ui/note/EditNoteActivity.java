@@ -121,10 +121,10 @@ public class EditNoteActivity extends BaseNoteActivity {
     protected void onAudioDeleted(String audioPath) {
         // Remove from existing paths if it's there
         existingAudioPaths.remove(audioPath);
-        
+
         // If it's a newly recorded audio, remove from that list too
         newAudioPaths.remove(audioPath);
-        
+
         // Remove from viewModel
         viewModel.removeAudioPath(audioPath);
     }

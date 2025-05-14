@@ -24,7 +24,7 @@
                 android:src="@drawable/ic_arrow_left"
                 android:contentDescription="@string/btn_back_desc"
                 android:layout_gravity="start|center_vertical"
-                app:tint="@color/color_icon"/>
+                app:tint="@color/color_icon" />
 
         <TextView
                 android:layout_width="wrap_content"
@@ -37,6 +37,7 @@
 
         <ImageButton
                 android:id="@+id/btn_empty_trash"
+                android:padding="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
