@@ -1,11 +1,15 @@
 package com.haui.notetakingapp.repository;
 
+import android.app.Application;
+import android.content.Context;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.haui.notetakingapp.data.remote.firebase.SyncManager;
 import com.haui.notetakingapp.data.remote.model.FirestoreUser;
 import com.haui.notetakingapp.utils.FirebaseErrorUtils;
 
@@ -14,11 +18,17 @@ import java.util.Date;
 public class AuthRepository {
     private final FirebaseAuth firebaseAuth;
     private final FirebaseFirestore firestore;
+    private Context applicationContext;
 
     public AuthRepository() {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.setLanguageCode("vi");
         firestore = FirebaseFirestore.getInstance();
+    }
+
+    public AuthRepository(Context context) {
+        this();
+        this.applicationContext = context.getApplicationContext();
     }
 
     public Task<AuthResult> login(String email, String password) {
@@ -56,6 +66,16 @@ public class AuthRepository {
     }
 
     public void logout() {
+        if (applicationContext != null) {
+            try {
+                NoteRepository noteRepository = new NoteRepository((Application) applicationContext);
+                noteRepository.clearAllLocalNotes();
+                SyncManager.getInstance().reset();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         firebaseAuth.signOut();
     }
 

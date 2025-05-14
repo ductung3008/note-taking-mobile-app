@@ -57,7 +57,6 @@ public class DeletedNoteActivity extends BaseActivity implements NoteAdapter.OnN
 
     private void setupRecyclerView() {
         deletedNoteAdapter = new NoteAdapter(new ArrayList<>(), this);
-
         rvDeletedNotes.setLayoutManager(new LinearLayoutManager(this));
         rvDeletedNotes.setAdapter(deletedNoteAdapter);
     }

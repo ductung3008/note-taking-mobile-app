@@ -50,11 +50,14 @@ dependencies {
 
     // Room components
     implementation("androidx.room:room-runtime:2.7.1")
+    implementation(libs.lifecycle.process)
     annotationProcessor("androidx.room:room-compiler:2.7.1")
 
     // LiveData and ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.0")
     implementation("androidx.lifecycle:lifecycle-livedata:2.8.0")
+    // Add lifecycle process for ProcessLifecycleOwner
+    implementation("androidx.lifecycle:lifecycle-process:2.8.0")
 
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.14.2")
