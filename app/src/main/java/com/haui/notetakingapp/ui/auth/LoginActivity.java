@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -43,6 +42,7 @@ import javax.annotation.Nullable;
 
 public class LoginActivity extends BaseActivity {
     private static final int RC_SIGN_IN = 100;
+    private static final String TAG = "LoginActivity";
     private EditText etEmail, etPassword;
     private CheckBox cbRemember;
     private Button btnSignIn;
@@ -103,6 +103,11 @@ public class LoginActivity extends BaseActivity {
 
         viewModel.user.observe(this, user -> {
             if (user != null) {
+                NoteDao noteDao = NoteDatabase.getInstance(getApplicationContext()).noteDao();
+                SyncManager.getInstance().initialize(getApplicationContext(), noteDao);
+
+                SyncManager.syncBothDirections(noteDao, user.getUid());
+
                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
@@ -191,7 +196,6 @@ public class LoginActivity extends BaseActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
-                Log.e("GoogleSignIn", "Đăng nhập Google thất bại. Mã lỗi: " + e.getStatusCode(), e);
                 Toast.makeText(this, "Google Sign-In thất bại: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
             }
 
@@ -205,10 +209,10 @@ public class LoginActivity extends BaseActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         if (user != null) {
-                            // 🔁 Gọi đồng bộ notes
-                            Log.d("UID", "User ID = " + user.getUid());
                             NoteDao noteDao = NoteDatabase.getInstance(getApplicationContext()).noteDao();
-                            SyncManager.syncBothDirections(getApplicationContext(), noteDao, user.getUid());
+                            SyncManager.getInstance().initialize(getApplicationContext(), noteDao);
+
+                            SyncManager.syncBothDirections(noteDao, user.getUid());
 
                             Toast.makeText(this, "Chào " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
