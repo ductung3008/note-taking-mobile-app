@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.haui.notetakingapp.data.local.FileManager;
 import com.haui.notetakingapp.data.local.NoteDatabase;
 import com.haui.notetakingapp.data.local.dao.NoteDao;
 import com.haui.notetakingapp.data.local.entity.Note;
@@ -44,6 +43,10 @@ public class NoteRepository {
                 syncManager.syncSingleNote(note);
             }
         });
+    }
+
+    public LiveData<Note> getNoteById(String noteId) {
+        return noteDao.getNoteById(noteId);
     }
 
     // Phương thức cập nhật ghi chú
@@ -85,39 +88,15 @@ public class NoteRepository {
 
     // Phương thức xóa vĩnh viễn một ghi chú cụ thể khỏi database VÀ xóa tệp đính kèm
     public void permanentlyDeleteNote(Note note) {
-        executorService.execute(() -> {
-            FileManager.deleteFiles(note.getImagePaths());
-            FileManager.deleteFiles(note.getAudioPaths());
-            FileManager.deleteFiles(note.getDrawingPaths());
-
-            String noteId = note.getId();
-
-            noteDao.deleteNote(note);
-
-            if (isUserLoggedIn()) {
-                syncManager.deleteSyncedNote(noteId);
-            }
-        });
+        executorService.execute(() -> noteDao.deleteNote(note));
     }
 
     // Phương thức xóa vĩnh viễn TẤT CẢ ghi chú trong thùng rác
     public void emptyTrash() {
         executorService.execute(() -> {
             List<Note> notesToDelete = noteDao.getDeletedNotesSync();
-            if (notesToDelete != null && !notesToDelete.isEmpty()) {
-                for (Note note : notesToDelete) {
-                    FileManager.deleteFiles(note.getImagePaths());
-                    FileManager.deleteFiles(note.getAudioPaths());
-                    FileManager.deleteFiles(note.getDrawingPaths());
-
-                    String noteId = note.getId();
-
-                    noteDao.deleteNote(note);
-
-                    if (isUserLoggedIn()) {
-                        syncManager.deleteSyncedNote(noteId);
-                    }
-                }
+            for (Note note : notesToDelete) {
+                noteDao.deleteNote(note);
             }
         });
     }
@@ -131,16 +110,6 @@ public class NoteRepository {
     // Lấy tất cả ghi chú ĐÃ xóa (cho màn hình thùng rác)
     public LiveData<List<Note>> getDeletedNotes() {
         return deletedNotes;
-    }
-
-    // Phương thức tìm kiếm ghi chú (chỉ tìm kiếm ghi chú CHƯA xóa)
-    public LiveData<List<Note>> searchNotes(String query) {
-        return noteDao.searchNotes("%" + query + "%");
-    }
-
-    // Phương thức để lấy một ghi chú theo ID (có thể cần cho màn hình chỉnh sửa hoặc xem chi tiết)
-    public LiveData<Note> getNoteById(String noteId) {
-        return noteDao.getNoteById(noteId);
     }
 
     // Helper method to check if user is logged in

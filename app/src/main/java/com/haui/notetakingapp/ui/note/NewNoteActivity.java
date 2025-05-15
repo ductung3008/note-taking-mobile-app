@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.haui.notetakingapp.R;
+import com.haui.notetakingapp.data.local.FileManager;
 import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.ui.note.base.BaseNoteActivity;
 import com.haui.notetakingapp.viewmodel.NewNoteViewModel;
@@ -90,7 +91,7 @@ public class NewNoteActivity extends BaseNoteActivity {
     }
 
     @Override
-    protected void onAudioRecorded(String audioPath) {
+    protected void onAudioRecorded(Uri audioUri) {
     }
 
     @Override
@@ -108,13 +109,14 @@ public class NewNoteActivity extends BaseNoteActivity {
 
     @Override
     protected void onImageDeleted(Uri imageUri) {
+        FileManager.deleteFile(this, imageUri.toString());
         viewModel.removeImagePath(imageUri);
     }
 
     @Override
-    protected void onAudioDeleted(String audioPath) {
-        // Remove from recorded paths list
-        recordedAudioPaths.remove(Uri.parse(audioPath));
+    protected void onAudioDeleted(String uriString) {
+        FileManager.deleteFile(this, uriString);
+        recordedAudioPaths.remove(Uri.parse(uriString));
     }
 
     private void saveNote() {
