@@ -124,7 +124,8 @@ public class NoteRepository {
 
     // Lấy tất cả ghi chú CHƯA xóa (cho màn hình Home)
     public LiveData<List<Note>> getAllNotes() {
-        return allNotes;
+//        return allNotes;
+        return noteDao.getAllNotesLiveData();
     }
 
     // Lấy tất cả ghi chú ĐÃ xóa (cho màn hình thùng rác)

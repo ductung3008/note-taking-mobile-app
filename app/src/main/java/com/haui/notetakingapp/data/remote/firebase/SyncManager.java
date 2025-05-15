@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.haui.notetakingapp.data.local.dao.NoteDao;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.data.remote.model.FirestoreNote;
@@ -68,9 +69,9 @@ public class SyncManager implements LifecycleObserver {
                     FirestoreNote fsNote = FirestoreNote.fromNote(note, userId);
                     db.collection("notes")
                             .document(note.getId())
-                            .set(fsNote.toMap())
+                            .set(fsNote.toMap(), SetOptions.merge())
                             .addOnSuccessListener(aVoid ->
-                                    Log.d(TAG, "Note synced to Firestore: " + note.getId() + ", isDeleted=" + note.isDeleted()))
+                                    Log.d(TAG, "Note synced to Firestore: " + note.getId() + ", isDeleted=" + note.getIsDeleted()))
                             .addOnFailureListener(e ->
                                     Log.e(TAG, "Failed to sync note: " + note.getId(), e));
                 }
@@ -93,11 +94,12 @@ public class SyncManager implements LifecycleObserver {
                                 FirestoreNote fsNote = doc.toObject(FirestoreNote.class);
                                 if (fsNote != null) {
                                     Note localNote = fsNote.toNote();
-
                                     Note existingNote = noteDao.getNoteByIdSync(localNote.getId());
 
                                     if (existingNote != null) {
-                                        noteDao.updateNote(localNote);
+                                        if (existingNote.getIsDeleted()) {
+                                            noteDao.updateNote(localNote);
+                                        }
                                     } else {
                                         noteDao.insertNote(localNote);
                                     }
@@ -211,7 +213,7 @@ public class SyncManager implements LifecycleObserver {
                             .document(note.getId())
                             .set(fsNote.toMap())
                             .addOnSuccessListener(aVoid ->
-                                    Log.d(TAG, "Single note synced to Firestore: " + note.getId() + ", isDeleted=" + note.isDeleted()))
+                                    Log.d(TAG, "Single note synced to Firestore: " + note.getId() + ", isDeleted=" + note.getIsDeleted()))
                             .addOnFailureListener(e ->
                                     Log.e(TAG, "Failed to sync single note: " + note.getId(), e));
                 } catch (Exception e) {
@@ -249,4 +251,6 @@ public class SyncManager implements LifecycleObserver {
             SyncManager.getInstance().syncIfLoggedIn();
         }
     }
+
+
 }
