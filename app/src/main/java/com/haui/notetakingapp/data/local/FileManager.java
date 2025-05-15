@@ -93,6 +93,31 @@ public class FileManager {
         return allDeleted;
     }
 
+    public static boolean deleteDirectory(File directory) {
+        if (directory != null && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteDirectory(file);
+                    } else {
+                        file.delete();
+                    }
+                }
+            }
+            return directory.delete();
+        }
+        return false;
+    }
+
+    public static boolean deleteAllFiles(Context context) {
+        File imageDir = new File(context.getFilesDir(), IMAGE_DIR);
+        File audioDir = new File(context.getFilesDir(), AUDIO_DIR);
+        File drawingDir = new File(context.getFilesDir(), DRAWING_DIR);
+
+        return deleteDirectory(imageDir) && deleteDirectory(audioDir) && deleteDirectory(drawingDir);
+    }
+
     private static File getDirectory(Context context, String dirName) {
         File directory = new File(context.getFilesDir(), dirName);
         if (!directory.exists()) {

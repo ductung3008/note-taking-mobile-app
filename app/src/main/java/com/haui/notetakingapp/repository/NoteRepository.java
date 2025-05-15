@@ -1,7 +1,6 @@
 package com.haui.notetakingapp.repository;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
@@ -120,17 +119,6 @@ public class NoteRepository {
 
     // Delete all notes from local database when user logs out
     public void clearAllLocalNotes() {
-        executorService.execute(() -> {
-            List<Note> allLocalNotes = noteDao.getAllNotesSync();
-            if (allLocalNotes != null && !allLocalNotes.isEmpty()) {
-                for (Note note : allLocalNotes) {
-                    FileManager.deleteFiles(note.getImagePaths());
-                    FileManager.deleteFiles(note.getAudioPaths());
-                    FileManager.deleteFiles(note.getDrawingPaths());
-                }
-            }
-
-            noteDao.deleteAllNotes();
-        });
+        executorService.execute(noteDao::deleteAllNotes);
     }
 }
