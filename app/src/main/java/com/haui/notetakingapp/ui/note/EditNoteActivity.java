@@ -8,6 +8,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.haui.notetakingapp.R;
+import com.haui.notetakingapp.data.local.FileManager;
 import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.data.local.entity.Note;
 import com.haui.notetakingapp.ui.note.base.BaseNoteActivity;
@@ -18,8 +19,8 @@ import java.util.List;
 
 public class EditNoteActivity extends BaseNoteActivity {
     private EditNoteViewModel viewModel;
-    private List<String> existingAudioPaths = new ArrayList<>(); // Paths from the original note
-    private List<String> newAudioPaths = new ArrayList<>(); // Newly recorded paths in this edit session
+    private List<Uri> existingAudioPaths = new ArrayList<>(); // Paths from the original note
+    private List<Uri> newAudioPaths = new ArrayList<>(); // Newly recorded paths in this edit session
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,10 +97,9 @@ public class EditNoteActivity extends BaseNoteActivity {
     }
 
     @Override
-    protected void onAudioRecorded(String audioPath) {
-        if (audioPath != null) {
-            newAudioPaths.add(audioPath);
-        }
+    protected void onAudioRecorded(Uri audioUri) {
+        viewModel.addAudioPath(audioUri.toString());
+        newAudioPaths.add(audioUri);
     }
 
     @Override
@@ -114,19 +114,16 @@ public class EditNoteActivity extends BaseNoteActivity {
 
     @Override
     protected void onImageDeleted(Uri imageUri) {
+        FileManager.deleteFile(this, imageUri.toString());
         viewModel.removeImagePath(imageUri);
     }
 
     @Override
-    protected void onAudioDeleted(String audioPath) {
-        // Remove from existing paths if it's there
-        existingAudioPaths.remove(audioPath);
-
-        // If it's a newly recorded audio, remove from that list too
-        newAudioPaths.remove(audioPath);
-
-        // Remove from viewModel
-        viewModel.removeAudioPath(audioPath);
+    protected void onAudioDeleted(String uriString) {
+        FileManager.deleteFile(this, uriString);
+        Uri uri = Uri.parse(uriString);
+        existingAudioPaths.remove(uri);
+        newAudioPaths.remove(uri);
     }
 
     private void myDisplay() {
@@ -149,12 +146,15 @@ public class EditNoteActivity extends BaseNoteActivity {
 
             // Handle audio if exists
             if (note.getAudioPaths() != null && !note.getAudioPaths().isEmpty()) {
-                // Store existing audio paths
-                existingAudioPaths.addAll(note.getAudioPaths());
+                for (String audioPath : note.getAudioPaths()) {
+                    Uri audioUri = Uri.parse(audioPath);
+                    existingAudioPaths.add(audioUri);
+                }
 
                 // Display each audio item in UI
-                for (String audioPath : note.getAudioPaths()) {
-                    addAudioItemToUI(audioPath);
+                for (String audioUriString : note.getAudioPaths()) {
+                    Uri audioUri = Uri.parse(audioUriString);
+                    addAudioItemToUI(audioUri);
                 }
             }
 
@@ -211,13 +211,13 @@ public class EditNoteActivity extends BaseNoteActivity {
         viewModel.clearAudioPaths();
 
         // Add all existing audio paths that weren't deleted
-        for (String path : existingAudioPaths) {
-            viewModel.addAudioPath(path);
+        for (Uri audioUri : existingAudioPaths) {
+            viewModel.addAudioPath(audioUri.toString());
         }
 
         // Add all new audio paths
-        for (String path : newAudioPaths) {
-            viewModel.addAudioPath(path);
+        for (Uri audioUri : newAudioPaths) {
+            viewModel.addAudioPath(audioUri.toString());
         }
 
         // Save note - using the saveNote method which is implemented in the base class

@@ -11,7 +11,6 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -48,6 +47,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.haui.notetakingapp.R;
+import com.haui.notetakingapp.data.local.FileManager;
 import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.ui.base.BaseActivity;
 import com.haui.notetakingapp.ui.note.DrawActivity;
@@ -55,11 +55,8 @@ import com.haui.notetakingapp.ui.note.DrawActivity;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * BaseNoteActivity là lớp trừu tượng chứa các chức năng và UI chung
@@ -88,7 +85,6 @@ public abstract class BaseNoteActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
     }
 
@@ -201,8 +197,7 @@ public abstract class BaseNoteActivity extends BaseActivity {
 
     protected void openCamera() {
         try {
-            File photoFile = new File(getExternalFilesDir(null), "note_photo_" + System.currentTimeMillis() + ".jpg");
-            imageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
+            imageUri = FileManager.createImageFileUri(this);
             takePictureLauncher.launch(imageUri);
         } catch (Exception e) {
             Toast.makeText(this, "Lỗi khi mở camera: ", Toast.LENGTH_SHORT).show();
@@ -281,7 +276,6 @@ public abstract class BaseNoteActivity extends BaseActivity {
                     Toast.makeText(this, "Phát xong", Toast.LENGTH_SHORT).show();
                 });
             } catch (IOException e) {
-                e.printStackTrace();
                 Toast.makeText(this, "Không thể phát ghi âm", Toast.LENGTH_SHORT).show();
             }
         }
@@ -293,32 +287,16 @@ public abstract class BaseNoteActivity extends BaseActivity {
             return;
         }
 
-        File outputDir = getExternalFilesDir(Environment.DIRECTORY_MUSIC);
-        if (outputDir != null) {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-            File outputFile = new File(outputDir, "audio_note_" + timeStamp + ".3gp");
-
-            audioFilePath = outputFile.getAbsolutePath();
-
-            // Add the new path to our list
-            Uri audioUri = Uri.fromFile(outputFile);
-            recordedAudioPaths.add(audioUri);
-
-            mediaRecorder = new MediaRecorder();
-            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mediaRecorder.setOutputFile(audioFilePath);
-            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-            try {
-                mediaRecorder.prepare();
-                mediaRecorder.start();
-                isRecording = true;
-                Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Không thể bắt đầu ghi âm", Toast.LENGTH_SHORT).show();
-            }
+        try {
+            File audioFile = FileManager.createAudioFile(this);
+            audioFilePath = audioFile.getAbsolutePath();
+            mediaRecorder = FileManager.prepareRecorder(audioFile);
+            recordedAudioPaths.add(FileProvider.getUriForFile(this, getPackageName() + ".provider", audioFile));
+            mediaRecorder.start();
+            isRecording = true;
+            Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(this, "Không thể bắt đầu ghi âm", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -327,7 +305,9 @@ public abstract class BaseNoteActivity extends BaseActivity {
             try {
                 mediaRecorder.stop();
             } catch (RuntimeException e) {
-                e.printStackTrace();
+                Toast.makeText(this, "Ghi âm không thành công", Toast.LENGTH_SHORT).show();
+                audioFilePath = null;
+                return;
             }
             mediaRecorder.release();
             mediaRecorder = null;
@@ -337,16 +317,17 @@ public abstract class BaseNoteActivity extends BaseActivity {
 
             // Handle the recording
             if (audioFilePath != null) {
-                onAudioRecorded(audioFilePath);
-                addAudioItemToUI(audioFilePath);
+                Uri audioUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", new File(audioFilePath));
+                onAudioRecorded(audioUri);
+                addAudioItemToUI(audioUri);
             }
         }
     }
 
-    protected abstract void onAudioRecorded(String audioPath);
+    protected abstract void onAudioRecorded(Uri audioUri);
 
-    protected void addAudioItemToUI(String audioPath) {
-        if (audioPath == null) return;
+    protected void addAudioItemToUI(Uri audioUri) {
+        if (audioUri == null) return;
 
         // Create a horizontal layout for each audio item with improved styling
         LinearLayout audioItemLayout = new LinearLayout(this);
@@ -354,14 +335,13 @@ public abstract class BaseNoteActivity extends BaseActivity {
         LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        itemParams.setMargins(0, 4, 0, 4); // Add some spacing between items
+        itemParams.setMargins(0, 4, 0, 4);
         audioItemLayout.setLayoutParams(itemParams);
-        audioItemLayout.setPadding(16, 12, 16, 12); // Increased padding for better touch area
-//        audioItemLayout.setBackgroundResource(R.drawable.audio_item_background); // Create this drawable
-        audioItemLayout.setGravity(Gravity.CENTER_VERTICAL); // Center items vertically
+        audioItemLayout.setPadding(16, 12, 16, 12);
+        audioItemLayout.setGravity(Gravity.CENTER_VERTICAL);
 
         // Set a tag to store the audio path for reference
-        audioItemLayout.setTag(audioPath);
+        audioItemLayout.setTag(audioUri);
 
         // Add long press listener to show delete option
         audioItemLayout.setOnLongClickListener(v -> {
@@ -369,15 +349,13 @@ public abstract class BaseNoteActivity extends BaseActivity {
             popupMenu.getMenuInflater().inflate(R.menu.menu_media_options, popupMenu.getMenu());
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.menu_delete) {
-                    // Remove audio item from view
                     audioContainer.removeView(v);
-                    // Handle audio deletion from ViewModel - this will be implemented in child classes
-                    onAudioDeleted((String) v.getTag());
+                    onAudioDeleted(audioUri.toString());
                     return true;
                 }
                 return false;
             });
-            // Try to show icons in popup menu
+
             try {
                 Method method = popupMenu.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
                 method.setAccessible(true);
@@ -385,14 +363,20 @@ public abstract class BaseNoteActivity extends BaseActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             popupMenu.show();
             return true;
         });
 
-        // Create a text view to show the file name with better styling
+        // Create a TextView to display the audio file name
         TextView audioFileName = new TextView(this);
-        File audioFile = new File(audioPath);
-        audioFileName.setText(audioFile.getName());
+        String audioName = "Recorded";
+        try {
+            File audioFile = new File(FileManager.getPathFromUri(this, audioUri));
+            audioName = audioFile.getName();
+        } catch (Exception ignored) {
+        }
+        audioFileName.setText(audioName);
         audioFileName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         audioFileName.setEllipsize(TextUtils.TruncateAt.END);
         audioFileName.setSingleLine(true);
@@ -410,13 +394,11 @@ public abstract class BaseNoteActivity extends BaseActivity {
         playAudioButton.setColorFilter(getResources().getColor(R.color.color_icon));
         playAudioButton.setPadding(12, 12, 12, 12);
 
-        // Set an ID for the path to be used in the click listener
-        playAudioButton.setTag(audioPath);
-
         // Set click listener for playing this specific audio
+        playAudioButton.setTag(audioUri);
         playAudioButton.setOnClickListener(v -> {
-            String path = (String) v.getTag();
-            playSpecificAudio(path);
+            Uri uri = (Uri) v.getTag();
+            playSpecificAudio(uri);
         });
 
         // Add views to the layout
@@ -430,25 +412,20 @@ public abstract class BaseNoteActivity extends BaseActivity {
         audioContainer.setVisibility(View.VISIBLE);
     }
 
-    protected void playSpecificAudio(String audioPath) {
-        if (audioPath == null) {
+    protected void playSpecificAudio(Uri audioUri) {
+        if (audioUri == null) {
             Toast.makeText(this, "Không có file ghi âm để phát", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Stop any currently playing audio
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
             mediaPlayer.release();
             mediaPlayer = null;
         }
 
-        // Create and start a new media player
         mediaPlayer = new MediaPlayer();
         try {
-            mediaPlayer.setDataSource(audioPath);
+            mediaPlayer.setDataSource(this, audioUri);
             mediaPlayer.prepare();
             mediaPlayer.start();
             Toast.makeText(this, "Đang phát...", Toast.LENGTH_SHORT).show();
@@ -459,7 +436,6 @@ public abstract class BaseNoteActivity extends BaseActivity {
                 Toast.makeText(this, "Phát xong", Toast.LENGTH_SHORT).show();
             });
         } catch (IOException e) {
-            e.printStackTrace();
             Toast.makeText(this, "Không thể phát ghi âm", Toast.LENGTH_SHORT).show();
         }
     }
@@ -586,5 +562,5 @@ public abstract class BaseNoteActivity extends BaseActivity {
     protected abstract void onImageDeleted(Uri imageUri);
 
     // Add this abstract method to handle audio deletion in child classes
-    protected abstract void onAudioDeleted(String audioPath);
+    protected abstract void onAudioDeleted(String uriString);
 }

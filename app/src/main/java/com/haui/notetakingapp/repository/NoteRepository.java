@@ -4,7 +4,6 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
-import com.haui.notetakingapp.data.local.FileManager;
 import com.haui.notetakingapp.data.local.NoteDatabase;
 import com.haui.notetakingapp.data.local.dao.NoteDao;
 import com.haui.notetakingapp.data.local.entity.Note;
@@ -36,6 +35,10 @@ public class NoteRepository {
         executorService.execute(() -> noteDao.insertNote(note));
     }
 
+    public LiveData<Note> getNoteById(String noteId) {
+        return noteDao.getNoteById(noteId);
+    }
+
     // Phương thức cập nhật ghi chú
     public void update(Note note) {
         note.setUpdatedAt(System.currentTimeMillis());
@@ -63,30 +66,15 @@ public class NoteRepository {
 
     // Phương thức xóa vĩnh viễn một ghi chú cụ thể khỏi database VÀ xóa tệp đính kèm
     public void permanentlyDeleteNote(Note note) {
-        executorService.execute(() -> {
-            // Xóa các tệp đính kèm trước
-            FileManager.deleteFiles(note.getImagePaths());
-            FileManager.deleteFiles(note.getAudioPaths());
-            FileManager.deleteFiles(note.getDrawingPaths());
-
-            // Xóa ghi chú khỏi database
-            noteDao.deleteNote(note);
-        });
+        executorService.execute(() -> noteDao.deleteNote(note));
     }
 
     // Phương thức xóa vĩnh viễn TẤT CẢ ghi chú trong thùng rác
     public void emptyTrash() {
         executorService.execute(() -> {
-            List<Note> notesToDelete = noteDao.getDeletedNotesSync(); // Lấy danh sách ghi chú đã xóa một cách đồng bộ
-            if (notesToDelete != null && !notesToDelete.isEmpty()) {
-                for (Note note : notesToDelete) {
-                    // Xóa các tệp đính kèm cho từng ghi chú
-                    FileManager.deleteFiles(note.getImagePaths());
-                    FileManager.deleteFiles(note.getAudioPaths());
-                    FileManager.deleteFiles(note.getDrawingPaths());
-                    // Xóa ghi chú khỏi database
-                    noteDao.deleteNote(note);
-                }
+            List<Note> notesToDelete = noteDao.getDeletedNotesSync();
+            for (Note note : notesToDelete) {
+                noteDao.deleteNote(note);
             }
         });
     }
@@ -100,17 +88,4 @@ public class NoteRepository {
     public LiveData<List<Note>> getDeletedNotes() {
         return deletedNotes;
     }
-
-    // Phương thức tìm kiếm ghi chú (chỉ tìm kiếm ghi chú CHƯA xóa)
-    public LiveData<List<Note>> searchNotes(String query) {
-        return noteDao.searchNotes("%" + query + "%");
-    }
-
-    // Phương thức để lấy một ghi chú theo ID (có thể cần cho màn hình chỉnh sửa hoặc xem chi tiết)
-    public LiveData<Note> getNoteById(String noteId) {
-        return noteDao.getNoteById(noteId);
-    }
-
-    // Cần cập nhật phương thức delete ban đầu trong HomeViewModel và bất cứ đâu sử dụng nó
-    // để gọi moveToTrash thay vì permanentlyDeleteNote
 }
