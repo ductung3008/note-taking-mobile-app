@@ -20,6 +20,7 @@ public class FirestoreNote {
     private List<String> audioUrls;
     private List<String> drawingUrls;
     private boolean isPinned;
+    private boolean isDeleted;
     private String userId;
 
     // Empty constructor required for Firestore
@@ -41,6 +42,7 @@ public class FirestoreNote {
         firestoreNote.createdAt = note.getCreatedAt();
         firestoreNote.updatedAt = note.getUpdatedAt();
         firestoreNote.isPinned = note.isPinned();
+        firestoreNote.isDeleted = note.getIsDeleted();
         firestoreNote.userId = userId;
 
         // Note: Image, audio and drawing URLs would need to be
@@ -62,6 +64,7 @@ public class FirestoreNote {
         map.put("createdAt", createdAt);
         map.put("updatedAt", updatedAt);
         map.put("isPinned", isPinned);
+        map.put("isDeleted", isDeleted);
         map.put("userId", userId);
 
         if (imageUrls != null) {
@@ -92,6 +95,7 @@ public class FirestoreNote {
         note.setCreatedAt(createdAt);
         note.setUpdatedAt(updatedAt);
         note.setPinned(isPinned);
+        note.setDeleted(this.isDeleted);
 
         // Note: When converting from Firestore to local Note,
         // you would need to download files from Firebase Storage URLs
@@ -170,6 +174,14 @@ public class FirestoreNote {
 
     public void setPinned(boolean pinned) {
         isPinned = pinned;
+    }
+
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     public String getUserId() {

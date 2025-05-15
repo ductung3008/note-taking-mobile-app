@@ -29,7 +29,8 @@ public class SettingViewModel extends AndroidViewModel {
 
     public SettingViewModel(@NonNull Application application) {
         super(application);
-        authRepository = new AuthRepository();
+        // Pass application context to AuthRepository for note deletion during logout
+        authRepository = new AuthRepository(application.getApplicationContext());
         settingRepository = new SettingRepository(application.getApplicationContext());
 
         textSize = settingRepository.textSize;
@@ -58,6 +59,7 @@ public class SettingViewModel extends AndroidViewModel {
     }
 
     public void logout() {
+        // This will clear all local notes as well (implemented in AuthRepository)
         authRepository.logout();
         setCurrentUser(null);
     }

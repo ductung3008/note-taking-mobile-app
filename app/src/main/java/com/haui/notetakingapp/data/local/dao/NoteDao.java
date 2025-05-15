@@ -34,14 +34,15 @@ public interface NoteDao {
     @Query("SELECT * FROM notes WHERE id = :noteId")
     LiveData<Note> getNoteById(String noteId);
 
-    @Query("UPDATE notes SET isDeleted = :isDeleted WHERE id = :noteId")
-    void updateDeletedStatus(String noteId, boolean isDeleted);
+    @Query("SELECT * FROM notes WHERE id = :noteId")
+    Note getNoteByIdSync(String noteId);
 
-    // !!! Đảm bảo phương thức này tồn tại và đúng chính tả !!!
     @Query("SELECT * FROM notes WHERE isDeleted = 1")
-    List<Note> getDeletedNotesSync(); // <-- Phương thức bị lỗi
+    List<Note> getDeletedNotesSync();
 
     @Query("SELECT * FROM notes")
     List<Note> getAllNotesSync();
 
+    @Query("DELETE FROM notes")
+    void deleteAllNotes();
 }

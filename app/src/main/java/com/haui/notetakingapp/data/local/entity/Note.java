@@ -136,7 +136,7 @@ public class Note implements Serializable {
         isPinned = pinned;
     }
 
-    public boolean isDeleted() {
+    public boolean getIsDeleted() {
         return isDeleted;
     }
 
