@@ -7,12 +7,20 @@ android {
     namespace = "com.haui.notetakingapp"
     compileSdk = 35
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.haui.notetakingapp"
         minSdk = 25
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"your-cloud-name\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"your-api-key\"")
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"your-api-secret\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,6 +52,8 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
 
+    // Cloudinary for media uploads
+    implementation("com.cloudinary:cloudinary-android:2.3.1")
 
     // Circle ImageView for profile picture
     implementation("de.hdodenhof:circleimageview:3.1.0")

@@ -87,7 +87,10 @@ public class NoteRepository {
 
     // Phương thức xóa vĩnh viễn một ghi chú cụ thể khỏi database VÀ xóa tệp đính kèm
     public void permanentlyDeleteNote(Note note) {
-        executorService.execute(() -> noteDao.deleteNote(note));
+        executorService.execute(() -> {
+            noteDao.deleteNote(note);
+            syncManager.deleteSyncedNote(note.getId());
+        });
     }
 
     // Phương thức xóa vĩnh viễn TẤT CẢ ghi chú trong thùng rác
@@ -95,6 +98,7 @@ public class NoteRepository {
         executorService.execute(() -> {
             List<Note> notesToDelete = noteDao.getDeletedNotesSync();
             for (Note note : notesToDelete) {
+                syncManager.deleteSyncedNote(note.getId());
                 noteDao.deleteNote(note);
             }
         });

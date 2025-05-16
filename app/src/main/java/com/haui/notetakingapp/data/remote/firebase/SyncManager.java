@@ -18,11 +18,18 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.haui.notetakingapp.data.local.FileManager;
 import com.haui.notetakingapp.data.local.dao.NoteDao;
 import com.haui.notetakingapp.data.local.entity.Note;
+import com.haui.notetakingapp.data.remote.cloudinary.CloudinaryManager;
 import com.haui.notetakingapp.data.remote.model.FirestoreNote;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -41,7 +48,6 @@ public class SyncManager implements LifecycleObserver {
     private NoteDao noteDao;
 
     private SyncManager() {
-        // Private constructor for singleton
     }
 
     public static synchronized SyncManager getInstance() {
@@ -66,12 +72,19 @@ public class SyncManager implements LifecycleObserver {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 for (Note note : localNotes) {
-                    FirestoreNote fsNote = FirestoreNote.fromNote(note, userId);
+                    Map<String, String> uriToUrlMap = new HashMap<>();
+
+                    FirestoreNote fsNote = uploadAttachmentsAndCreateFirestoreNote(note, userId, uriToUrlMap);
+
                     db.collection("notes")
                             .document(note.getId())
                             .set(fsNote.toMap(), SetOptions.merge())
-                            .addOnSuccessListener(aVoid ->
-                                    Log.d(TAG, "Note synced to Firestore: " + note.getId() + ", isDeleted=" + note.getIsDeleted()))
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "Note synced to Firestore: " + note.getId());
+
+                                // Update local note with Cloudinary URLs
+                                updateLocalNoteWithCloudinaryUrls(noteDao, note, uriToUrlMap);
+                            })
                             .addOnFailureListener(e ->
                                     Log.e(TAG, "Failed to sync note: " + note.getId(), e));
                 }
@@ -79,6 +92,124 @@ public class SyncManager implements LifecycleObserver {
                 Log.e(TAG, "Error syncing notes to Firestore", e);
             }
         });
+    }
+
+    private static FirestoreNote uploadAttachmentsAndCreateFirestoreNote(Note note, String userId, Map<String, String> uriToUrlMap) {
+        List<String> imageUrls = uploadAttachments(note.getImagePaths(), "images/" + userId, uriToUrlMap);
+        List<String> audioUrls = uploadAttachments(note.getAudioPaths(), "audio/" + userId, uriToUrlMap);
+        List<String> drawingUrls = uploadAttachments(note.getDrawingPaths(), "drawings/" + userId, uriToUrlMap);
+
+        return FirestoreNote.fromNoteWithAttachments(note, userId, imageUrls, audioUrls, drawingUrls);
+    }
+
+    private static List<String> uploadAttachments(List<String> filePaths, String folder, Map<String, String> uriToUrlMap) {
+        if (filePaths == null || filePaths.isEmpty()) {
+            return null;
+        }
+
+        List<String> uploadedUrls = new ArrayList<>();
+        CloudinaryManager cloudinaryManager = CloudinaryManager.getInstance();
+
+        for (String path : filePaths) {
+            if (isUrl(path)) {
+                uploadedUrls.add(path);
+                continue;
+            }
+
+            String cloudinaryUrl = cloudinaryManager.uploadFile(path, folder);
+            if (cloudinaryUrl != null) {
+                uploadedUrls.add(cloudinaryUrl);
+                uriToUrlMap.put(path, cloudinaryUrl);
+                Log.d(TAG, "File uploaded to Cloudinary: " + path + " -> " + cloudinaryUrl);
+            } else {
+                Log.e(TAG, "Failed to upload file to Cloudinary: " + path);
+            }
+        }
+
+        return uploadedUrls.isEmpty() ? null : uploadedUrls;
+    }
+
+    private static void updateLocalNoteWithCloudinaryUrls(NoteDao noteDao, Note note, Map<String, String> uriToUrlMap) {
+        if (uriToUrlMap.isEmpty()) {
+            return;
+        }
+
+        executor.execute(() -> {
+            try {
+                Note currentNote = noteDao.getNoteByIdSync(note.getId());
+                if (currentNote == null) {
+                    Log.w(TAG, "Cannot update local note with Cloudinary URLs: Note not found in database");
+                    return;
+                }
+
+                boolean changed = false;
+
+                if (currentNote.getImagePaths() != null) {
+                    List<String> updatedImagePaths = updatePathsWithCloudinaryUrls(
+                            currentNote.getImagePaths(), uriToUrlMap);
+                    if (updatedImagePaths != null) {
+                        FileManager.deleteFiles(instance.appContext, currentNote.getImagePaths());
+                        currentNote.setImagePaths(updatedImagePaths);
+                        changed = true;
+                    }
+                }
+
+                if (currentNote.getAudioPaths() != null) {
+                    List<String> updatedAudioPaths = updatePathsWithCloudinaryUrls(
+                            currentNote.getAudioPaths(), uriToUrlMap);
+                    if (updatedAudioPaths != null) {
+                        FileManager.deleteFiles(instance.appContext, currentNote.getAudioPaths());
+                        currentNote.setAudioPaths(updatedAudioPaths);
+                        changed = true;
+                    }
+                }
+
+                if (currentNote.getDrawingPaths() != null) {
+                    List<String> updatedDrawingPaths = updatePathsWithCloudinaryUrls(
+                            currentNote.getDrawingPaths(), uriToUrlMap);
+                    if (updatedDrawingPaths != null) {
+                        FileManager.deleteFiles(instance.appContext, currentNote.getDrawingPaths());
+                        currentNote.setDrawingPaths(updatedDrawingPaths);
+                        changed = true;
+                    }
+                }
+
+                if (changed) {
+                    Log.d(TAG, "Updating local note with Cloudinary URLs: " + note.getId());
+                    noteDao.updateNote(currentNote);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error updating local note with Cloudinary URLs", e);
+            }
+        });
+    }
+
+    private static List<String> updatePathsWithCloudinaryUrls(List<String> paths, Map<String, String> uriToUrlMap) {
+        if (paths == null || paths.isEmpty()) {
+            return null;
+        }
+
+        boolean changed = false;
+        List<String> updatedPaths = new ArrayList<>(paths);
+
+        for (int i = 0; i < updatedPaths.size(); i++) {
+            String path = updatedPaths.get(i);
+            if (uriToUrlMap.containsKey(path)) {
+                updatedPaths.set(i, uriToUrlMap.get(path));
+                changed = true;
+            }
+        }
+
+        return changed ? updatedPaths : null;
+    }
+
+    private static boolean isUrl(String string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
     }
 
     public static void syncNotesFromFirestore(NoteDao noteDao, String userId) {
@@ -96,12 +227,10 @@ public class SyncManager implements LifecycleObserver {
                                     Note localNote = fsNote.toNote();
                                     Note existingNote = noteDao.getNoteByIdSync(localNote.getId());
 
-                                    if (existingNote != null) {
-                                        if (existingNote.getIsDeleted()) {
-                                            noteDao.updateNote(localNote);
-                                        }
-                                    } else {
+                                    if (existingNote == null) {
                                         noteDao.insertNote(localNote);
+                                    } else if (localNote.getUpdatedAt() > existingNote.getUpdatedAt()) {
+                                        noteDao.updateNote(localNote);
                                     }
                                 }
                             }
@@ -118,7 +247,7 @@ public class SyncManager implements LifecycleObserver {
     public void initialize(Context context, NoteDao dao) {
         if (isInitialized) return;
 
-        this.appContext = context.getApplicationContext();
+        this.appContext = context;
         this.noteDao = dao;
 
         // Register lifecycle observer to sync when app goes to background
@@ -206,14 +335,18 @@ public class SyncManager implements LifecycleObserver {
         if (currentUser != null && note != null) {
             executor.execute(() -> {
                 try {
-                    FirestoreNote fsNote = FirestoreNote.fromNote(note, currentUser.getUid());
+                    Map<String, String> uriToUrlMap = new HashMap<>();
+
+                    FirestoreNote fsNote = uploadAttachmentsAndCreateFirestoreNote(note, currentUser.getUid(), uriToUrlMap);
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                     db.collection("notes")
                             .document(note.getId())
                             .set(fsNote.toMap())
-                            .addOnSuccessListener(aVoid ->
-                                    Log.d(TAG, "Single note synced to Firestore: " + note.getId() + ", isDeleted=" + note.getIsDeleted()))
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "Single note synced to Firestore: " + note.getId() + ", isDeleted=" + note.getIsDeleted());
+                                updateLocalNoteWithCloudinaryUrls(noteDao, note, uriToUrlMap);
+                            })
                             .addOnFailureListener(e ->
                                     Log.e(TAG, "Failed to sync single note: " + note.getId(), e));
                 } catch (Exception e) {
@@ -251,6 +384,4 @@ public class SyncManager implements LifecycleObserver {
             SyncManager.getInstance().syncIfLoggedIn();
         }
     }
-
-
 }
