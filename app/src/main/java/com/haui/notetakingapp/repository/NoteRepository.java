@@ -1,13 +1,11 @@
 package com.haui.notetakingapp.repository;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.haui.notetakingapp.data.local.FileManager;
 import com.haui.notetakingapp.data.local.NoteDatabase;
 import com.haui.notetakingapp.data.local.dao.NoteDao;
 import com.haui.notetakingapp.data.local.entity.Note;
@@ -44,6 +42,10 @@ public class NoteRepository {
                 syncManager.syncSingleNote(note);
             }
         });
+    }
+
+    public LiveData<Note> getNoteById(String noteId) {
+        return noteDao.getNoteById(noteId);
     }
 
     // Phương thức cập nhật ghi chú
@@ -86,17 +88,8 @@ public class NoteRepository {
     // Phương thức xóa vĩnh viễn một ghi chú cụ thể khỏi database VÀ xóa tệp đính kèm
     public void permanentlyDeleteNote(Note note) {
         executorService.execute(() -> {
-            FileManager.deleteFiles(note.getImagePaths());
-            FileManager.deleteFiles(note.getAudioPaths());
-            FileManager.deleteFiles(note.getDrawingPaths());
-
-            String noteId = note.getId();
-
             noteDao.deleteNote(note);
-
-            if (isUserLoggedIn()) {
-                syncManager.deleteSyncedNote(noteId);
-            }
+            syncManager.deleteSyncedNote(note.getId());
         });
     }
 
@@ -104,20 +97,9 @@ public class NoteRepository {
     public void emptyTrash() {
         executorService.execute(() -> {
             List<Note> notesToDelete = noteDao.getDeletedNotesSync();
-            if (notesToDelete != null && !notesToDelete.isEmpty()) {
-                for (Note note : notesToDelete) {
-                    FileManager.deleteFiles(note.getImagePaths());
-                    FileManager.deleteFiles(note.getAudioPaths());
-                    FileManager.deleteFiles(note.getDrawingPaths());
-
-                    String noteId = note.getId();
-
-                    noteDao.deleteNote(note);
-
-                    if (isUserLoggedIn()) {
-                        syncManager.deleteSyncedNote(noteId);
-                    }
-                }
+            for (Note note : notesToDelete) {
+                syncManager.deleteSyncedNote(note.getId());
+                noteDao.deleteNote(note);
             }
         });
     }
@@ -133,16 +115,6 @@ public class NoteRepository {
         return deletedNotes;
     }
 
-    // Phương thức tìm kiếm ghi chú (chỉ tìm kiếm ghi chú CHƯA xóa)
-    public LiveData<List<Note>> searchNotes(String query) {
-        return noteDao.searchNotes("%" + query + "%");
-    }
-
-    // Phương thức để lấy một ghi chú theo ID (có thể cần cho màn hình chỉnh sửa hoặc xem chi tiết)
-    public LiveData<Note> getNoteById(String noteId) {
-        return noteDao.getNoteById(noteId);
-    }
-
     // Helper method to check if user is logged in
     private boolean isUserLoggedIn() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -151,17 +123,6 @@ public class NoteRepository {
 
     // Delete all notes from local database when user logs out
     public void clearAllLocalNotes() {
-        executorService.execute(() -> {
-            List<Note> allLocalNotes = noteDao.getAllNotesSync();
-            if (allLocalNotes != null && !allLocalNotes.isEmpty()) {
-                for (Note note : allLocalNotes) {
-                    FileManager.deleteFiles(note.getImagePaths());
-                    FileManager.deleteFiles(note.getAudioPaths());
-                    FileManager.deleteFiles(note.getDrawingPaths());
-                }
-            }
-
-            noteDao.deleteAllNotes();
-        });
+        executorService.execute(noteDao::deleteAllNotes);
     }
 }

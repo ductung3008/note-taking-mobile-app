@@ -2,6 +2,7 @@ package com.haui.notetakingapp.data.remote.model;
 
 import com.haui.notetakingapp.data.local.entity.Note;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class FirestoreNote {
 
     /**
      * Convert a local Note to a FirestoreNote
+     * Note: This only maps the basic fields, not the attachments
      *
      * @param note   Local Note entity
      * @param userId User ID who owns the note
@@ -45,9 +47,28 @@ public class FirestoreNote {
         firestoreNote.isDeleted = note.getIsDeleted();
         firestoreNote.userId = userId;
 
-        // Note: Image, audio and drawing URLs would need to be
-        // set after uploading files to Firebase Storage
+        return firestoreNote;
+    }
 
+    /**
+     * Convert a local Note to a FirestoreNote with attachment URLs
+     *
+     * @param note       Local Note entity
+     * @param userId     User ID who owns the note
+     * @param imageUrls  List of Cloudinary URLs for images
+     * @param audioUrls  List of Cloudinary URLs for audio files
+     * @param drawingUrls List of Cloudinary URLs for drawings
+     * @return FirestoreNote ready for Firestore
+     */
+    public static FirestoreNote fromNoteWithAttachments(Note note, String userId, 
+                                                      List<String> imageUrls,
+                                                      List<String> audioUrls,
+                                                      List<String> drawingUrls) {
+        FirestoreNote firestoreNote = fromNote(note, userId);
+        firestoreNote.imageUrls = imageUrls;
+        firestoreNote.audioUrls = audioUrls;
+        firestoreNote.drawingUrls = drawingUrls;
+        
         return firestoreNote;
     }
 
@@ -84,6 +105,7 @@ public class FirestoreNote {
 
     /**
      * Convert this FirestoreNote to a local Note entity
+     * Note: This preserves remote URLs in note metadata
      *
      * @return Note entity for local storage
      */
@@ -96,10 +118,20 @@ public class FirestoreNote {
         note.setUpdatedAt(updatedAt);
         note.setPinned(isPinned);
         note.setDeleted(this.isDeleted);
-
-        // Note: When converting from Firestore to local Note,
-        // you would need to download files from Firebase Storage URLs
-        // and save them locally, then set the local paths
+        
+        // Store Cloudinary URLs in local paths
+        // The URLs will be used to download and cache files locally when needed
+        if (imageUrls != null) {
+            note.setImagePaths(new ArrayList<>(imageUrls));
+        }
+        
+        if (audioUrls != null) {
+            note.setAudioPaths(new ArrayList<>(audioUrls));
+        }
+        
+        if (drawingUrls != null) {
+            note.setDrawingPaths(new ArrayList<>(drawingUrls));
+        }
 
         return note;
     }

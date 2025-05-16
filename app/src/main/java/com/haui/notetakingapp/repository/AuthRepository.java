@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.haui.notetakingapp.data.local.FileManager;
 import com.haui.notetakingapp.data.remote.firebase.SyncManager;
 import com.haui.notetakingapp.data.remote.model.FirestoreUser;
 import com.haui.notetakingapp.utils.FirebaseErrorUtils;
@@ -70,6 +71,7 @@ public class AuthRepository {
             try {
                 NoteRepository noteRepository = new NoteRepository((Application) applicationContext);
                 noteRepository.clearAllLocalNotes();
+                FileManager.deleteAllFiles(applicationContext);
                 SyncManager.getInstance().reset();
             } catch (Exception e) {
                 e.printStackTrace();

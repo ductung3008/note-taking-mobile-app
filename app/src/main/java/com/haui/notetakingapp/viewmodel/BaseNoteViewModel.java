@@ -82,9 +82,9 @@ public abstract class BaseNoteViewModel extends AndroidViewModel {
         }
     }
 
-    public void removeAudioPath(String audioPath) {
-        if (audioPath != null) {
-            audioPaths.remove(audioPath);
+    public void removeAudioPath(Uri audioUri) {
+        if (audioUri != null) {
+            audioPaths.remove(String.valueOf(audioUri));
         }
     }
 
