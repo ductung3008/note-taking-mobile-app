@@ -1,5 +1,6 @@
 package com.haui.notetakingapp.data.remote.model;
 
+import com.haui.notetakingapp.data.local.entity.CheckListItem;
 import com.haui.notetakingapp.data.local.entity.Note;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class FirestoreNote {
     private boolean isPinned;
     private boolean isDeleted;
     private String userId;
+    private List<CheckListItem> checklistItems;
 
     // Empty constructor required for Firestore
     public FirestoreNote() {
@@ -46,6 +48,7 @@ public class FirestoreNote {
         firestoreNote.isPinned = note.isPinned();
         firestoreNote.isDeleted = note.getIsDeleted();
         firestoreNote.userId = userId;
+        firestoreNote.checklistItems = note.getChecklistItems();
 
         return firestoreNote;
     }
@@ -99,6 +102,16 @@ public class FirestoreNote {
         if (drawingUrls != null) {
             map.put("drawingUrls", drawingUrls);
         }
+        if (checklistItems != null) {
+            List<Map<String, Object>> checklistMap = new ArrayList<>();
+            for (CheckListItem item : checklistItems) {
+                Map<String, Object> itemMap = new HashMap<>();
+                itemMap.put("text", item.getText());
+                itemMap.put("isChecked", item.getIsChecked());
+                checklistMap.add(itemMap);
+            }
+            map.put("checklistItems", checklistMap);
+        }
 
         return map;
     }
@@ -118,7 +131,8 @@ public class FirestoreNote {
         note.setUpdatedAt(updatedAt);
         note.setPinned(isPinned);
         note.setDeleted(this.isDeleted);
-        
+        note.setChecklistItems(checklistItems);
+
         // Store Cloudinary URLs in local paths
         // The URLs will be used to download and cache files locally when needed
         if (imageUrls != null) {
@@ -222,5 +236,12 @@ public class FirestoreNote {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+    public List<CheckListItem> getChecklistItems() {
+        return checklistItems;
+    }
+
+    public void setChecklistItems(List<CheckListItem> checklistItems) {
+        this.checklistItems = checklistItems;
     }
 }
