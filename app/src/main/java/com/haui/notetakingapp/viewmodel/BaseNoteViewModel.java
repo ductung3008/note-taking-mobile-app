@@ -56,15 +56,21 @@ public abstract class BaseNoteViewModel extends AndroidViewModel {
         }
     }
 
+    public void removeImagePath(Uri imageUri) {
+        if (imageUri != null) {
+            imagePaths.remove(String.valueOf(imageUri));
+        }
+    }
+
     public void addDrawingPath(Uri drawingPath) {
         if (drawingPath != null) {
             this.drawingPaths.add(String.valueOf(drawingPath));
         }
     }
 
-    public void removeImagePath(Uri imageUri) {
-        if (imageUri != null) {
-            imagePaths.remove(String.valueOf(imageUri));
+    public void removeDrawingPath(Uri drawingPath) {
+        if (drawingPath != null) {
+            this.drawingPaths.remove(String.valueOf(drawingPath));
         }
     }
 

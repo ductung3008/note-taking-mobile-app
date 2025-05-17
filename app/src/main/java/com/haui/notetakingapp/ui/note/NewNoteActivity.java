@@ -111,6 +111,7 @@ public class NewNoteActivity extends BaseNoteActivity {
     protected void onImageDeleted(Uri imageUri) {
         FileManager.deleteFile(this, imageUri.toString());
         viewModel.removeImagePath(imageUri);
+        viewModel.removeDrawingPath(imageUri);
     }
 
     @Override
