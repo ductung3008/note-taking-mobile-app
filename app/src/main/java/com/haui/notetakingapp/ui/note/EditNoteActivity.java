@@ -169,7 +169,7 @@ public class EditNoteActivity extends BaseNoteActivity {
             // Handle checklist items if they exist
             if (note.getChecklistItems() != null && !note.getChecklistItems().isEmpty()) {
                 for (CheckListItem item : note.getChecklistItems()) {
-                    addExistingChecklistItem(item.getText(), item.isChecked());
+                    addExistingChecklistItem(item.getText(), item.getIsChecked());
                 }
             }
         }

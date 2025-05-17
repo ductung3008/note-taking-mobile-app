@@ -19,7 +19,14 @@ public class CheckListItem implements Serializable {
         return text;
     }
 
-    public boolean isChecked() {
+    public boolean getIsChecked() {
         return isChecked;
+    }
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
     }
 }
